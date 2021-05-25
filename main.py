@@ -20,14 +20,14 @@ class Main(QtWidgets.QStackedLayout):
     def __init__(self, parent=None):
         super(Main, self).__init__(parent)
 
-        self.create_screens()
-        self.create_objects()
-        self.set_connects()
+        self._createScreens()
+        self._createObject()
+        self._connectWidgets()
 
-    def create_objects(self):
+    def _createObject(self):
         self.objeto_criar_flashcards = ObjetoCriarFlashcards()
 
-    def create_screens(self):
+    def _createScreens(self):
         self.tela_inicial = TelaInicial()
         self.tela_ver_dia = TelaVerDia()
         self.tela_criar_flashcards = TelaCriarFlashcards()
@@ -38,19 +38,18 @@ class Main(QtWidgets.QStackedLayout):
         self.addWidget(self.tela_criar_flashcards)
         self.addWidget(self.tela_revisao)
 
-    def set_connects(self):
-        self.tela_inicial.ver_dia_botao.clicked.connect(self.abrir_TelaVerDia)
-        self.tela_inicial.criar_flashcards_botao.clicked.connect(self.abrir_TelaCriarFlashcards)
+    def _connectWidgets(self):
+        self.tela_inicial.setConnect("ver_dia_botao", self.abrir_TelaVerDia)
+        self.tela_inicial.setConnect("criar_flashcards_botao", self.abrir_TelaCriarFlashcards)
 
-        self.tela_ver_dia.voltar_botao.clicked.connect(self.abrir_TelaInicial)
+        self.tela_ver_dia.setConnect("voltar_botao", self.abrir_TelaInicial)
+        self.tela_ver_dia.setConnect("revisar_atrasado_botao", self.telaRevisao_atrasado)
+        self.tela_ver_dia.setConnect("revisar_atual_botao", self.telaRevisao_atual)
 
-        self.tela_criar_flashcards.cancelar_botao.clicked.connect(self.cancelar_TelaCriarFlashcards)
-        self.tela_criar_flashcards.salvar_botao.clicked.connect(self.salvar_TelaCriarFlashcards)
-        self.tela_criar_flashcards.deletar_botao.clicked.connect(self.deletar_TelaCriarFlashcards)
-        self.tela_criar_flashcards.finalizar_botao.clicked.connect(self.finalizar_TelaCriarFlashcards)
-
-        self.tela_ver_dia.revisar_atrasado_botao.clicked.connect(self.telaRevisao_atrasado)
-        self.tela_ver_dia.revisar_atual_botao.clicked.connect(self.telaRevisao_atual)
+        self.tela_criar_flashcards.setConnect("salvar_botao", self.salvar_TelaCriarFlashcards)
+        self.tela_criar_flashcards.setConnect("deletar_botao", self.deletar_TelaCriarFlashcards)
+        self.tela_criar_flashcards.setConnect("salvar_botao", self.finalizar_TelaCriarFlashcards)
+        self.tela_criar_flashcards.setConnect("cancelar_botao", self.cancelar_TelaCriarFlashcards)
 
         self.tela_revisao.setConnect("voltar_botao", self.voltar_TelaRevisao)
         self.tela_revisao.setConnect("anterior_botao", self.anterior_ou_proximo)
@@ -195,12 +194,16 @@ class Main(QtWidgets.QStackedLayout):
     def acerteiResposta(self):
         if self.tela_revisao.titulo.acertei_ou_errei(True) == False:
             self.salvarObjeto()
-        self.tela_revisao.texto.setText("")
+            
+        self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
+        self.tela_revisao.setText("texto", self.tela_revisao.titulo.nivel[self.tela_revisao.titulo.cursor][0])
 
     def erreiResposta(self):
         if self.tela_revisao.titulo.acertei_ou_errei(False) == False:
             self.salvarObjeto()
-        self.tela_revisao.texto.setText("")
+
+        self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
+        self.tela_revisao.setText("texto", self.tela_revisao.titulo.nivel[self.tela_revisao.titulo.cursor][0])
 
     def salvarObjeto(self):
         filehandler = open("flashcards\\" + self.tela_revisao.titulo.nome + ".obj", 'wb')

@@ -1,27 +1,26 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QGraphicsDropShadowEffect, QTextEdit, QLabel
-from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QTextEdit, QLabel
 from PyQt5.QtCore import Qt, QRect
 import sys
+from Suporte import style_button, SetInterface
 
 
-class TelaRevisao(QWidget):
+class TelaRevisao(QWidget, SetInterface):
     def __init__(self, parent=None):
         super(TelaRevisao, self).__init__(parent)
         self.titulo = None
-        self.texts = {}
-        self.connects = {}
+        self._texts = {}
 
-        self.settings()
-        self.createWidgets()
-        self.setStyle()
-        self.setTexts()
-        self.setConnects()
+        self._settings()
+        self._createWidgets()
+        self._setStyle()
+        self._setTexts()
+        self._setConnects()
 
-    def settings(self):
+    def _settings(self):
         self.resize(800, 600)
         self.setWindowTitle("Revisão")
  
-    def createWidgets(self):
+    def _createWidgets(self):
         self.pergunta_ou_resposta = QLabel("pergunta", self)
         self.pergunta_ou_resposta.setGeometry(QRect(350, 85, 100, 30))
         self.pergunta_ou_resposta.setAlignment(Qt.AlignCenter)
@@ -50,69 +49,29 @@ class TelaRevisao(QWidget):
         self.texto = QTextEdit(self)
         self.texto.setGeometry(QRect(150, 120, 500, 350))
 
-    def setStyle(self):
+    def _setStyle(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
         self.pergunta_ou_resposta.setStyleSheet("font: 14pt;")
 
         self.texto.setStyleSheet("font: 12pt;")
 
-        def style_button(button, shadow, cor, borda):
-            button.setStyleSheet("QPushButton{\n"
-                                    "font: 10pt;\n"
-                                    "background-color: rgb" + cor + ";\n"
-                                    "color: rgb(50, 50, 50);\n"
-                                    "border-radius: " + borda + "px;\n"
-                                    "border-color: rgb(56, 56, 56)\n"
-                                "}\n"
+        style_button(button=self.anterior_botao, shadow=self.anterior_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="20")
+        style_button(button=self.proximo_botao, shadow=self.proximo_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="20")
+        style_button(button=self.acertei_botao, shadow=self.acertei_shadow, cor="(156, 255, 176)", tam_fonte="10", tam_borda="5")
+        style_button(button=self.errei_botao, shadow=self.errei_shadow, cor="(255, 135, 135)", tam_fonte="10", tam_borda="5")
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="10")
 
-                                "QPushButton:hover{\n"
-                                    "background-color: rgb(107, 107, 107);\n"
-                                    "color: rgb(245, 245, 245);\n"
-                                "}\n"
+    def _setTexts(self):
+        self._texts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.setText
+        self._texts["texto"] = self.setText_texto
 
-                                "QPushButton:pressed{\n"
-                                    "background-color: rgb(75, 75, 75);\n"
-                                    "color: rgb(210, 210, 210);\n"
-                                "}")
-
-            shadow.setXOffset(0)
-            shadow.setYOffset(2)
-            shadow.setBlurRadius(25)
-            shadow.setColor(QColor (200, 200, 200))
-
-            button.setGraphicsEffect(shadow) 
-
-        style_button(self.anterior_botao, self.anterior_shadow, "(235, 235, 235)", "20")
-        style_button(self.proximo_botao, self.proximo_shadow, "(235, 235, 235)", "20")
-        style_button(self.acertei_botao, self.acertei_shadow, "(156, 255, 176)", "5")
-        style_button(self.errei_botao, self.errei_shadow, "(255, 135, 135)", "5")
-        style_button(self.voltar_botao, self.voltar_shadow, "(235, 235, 235)", "10")
-
-    def setTexts(self):
-        self.texts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.setText
-        self.texts["texto"] = self.setText_texto
-
-    def setConnects(self):
-        self.connects["anterior_botao"] = self.anterior_botao.clicked.connect
-        self.connects["proximo_botao"] = self.proximo_botao.clicked.connect
-        self.connects["acertei_botao"] = self.acertei_botao.clicked.connect
-        self.connects["errei_botao"] = self.errei_botao.clicked.connect
-        self.connects["voltar_botao"] = self.voltar_botao.clicked.connect
-
-    def setText(self, widget_name, texto):
-        try:
-            func = self.texts[widget_name]
-            func(texto)
-        except:
-            print("ERRO: " + widget_name + " nao existe")
-
-    def setConnect(self, widget_name, funcao):
-        try:
-            func = self.connects[widget_name]
-            func(funcao)
-        except:
-            print("ERRO: " + widget_name + " nao existe")
+    def _setConnects(self):
+        self._connects["anterior_botao"] = self.anterior_botao.clicked.connect
+        self._connects["proximo_botao"] = self.proximo_botao.clicked.connect
+        self._connects["acertei_botao"] = self.acertei_botao.clicked.connect
+        self._connects["errei_botao"] = self.errei_botao.clicked.connect
+        self._connects["voltar_botao"] = self.voltar_botao.clicked.connect
 
     def setText_texto(self, texto):
         self.texto.setText(texto)

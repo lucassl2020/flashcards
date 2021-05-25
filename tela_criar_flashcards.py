@@ -1,110 +1,84 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QGraphicsDropShadowEffect, QTextEdit, QLabel, QComboBox, QLineEdit, QHBoxLayout, QVBoxLayout
-from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QTextEdit, QLabel, QComboBox, QLineEdit
+from PyQt5.QtCore import Qt, QRect
 import sys
+from Suporte import style_button, SetInterface
 
 
-class TelaCriarFlashcards(QWidget):
+class TelaCriarFlashcards(QWidget, SetInterface):
     def __init__(self, parent=None):
         super(TelaCriarFlashcards, self).__init__(parent)
-        self.settings()
-        self.create_widgets()
-        self.set_layout()
-        self.set_style()
+        self._settings()
+        self._create_widgets()
+        self._set_style()
+        self._setTexts()
+        self._setConnects()
 
-    def settings(self):
-        self.resize(800, 400)
+    def _settings(self):
+        self.resize(800, 600)
         self.setWindowTitle("Criar flashcards")
  
-    def create_widgets(self):
-        self.flashcards_label = QLabel("flashcards")
-        self.flashcards_box = QComboBox()
+    def _create_widgets(self):
+        self.titulo_label = QLabel("titulo", self)
+        self.titulo_label.setGeometry(QRect(150, 20, 60, 25))
+
+        self.titulo_line = QLineEdit(self)
+        self.titulo_line.setGeometry(QRect(190, 20, 440, 25))
+
+        self.pergunta_label = QLabel("pergunta", self)
+        self.pergunta_label.setGeometry(QRect(102, 90, 60, 25))
+
+        self.resposta_label = QLabel("resposta", self)
+        self.resposta_label.setGeometry(QRect(407, 90, 60, 25))
+
+        self.pergunta_texto = QTextEdit(self)
+        self.pergunta_texto.setGeometry(QRect(97, 115, 300, 240))
+
+        self.resposta_texto = QTextEdit(self)
+        self.resposta_texto.setGeometry(QRect(402, 115, 300, 240))
+
+        self.adicionar_botao = QPushButton("adicionar", self)
+        self.adicionar_botao.setGeometry(QRect(97, 355, 605, 50))
+
+        self.flashcards_label = QLabel("flashcards", self)
+        self.flashcards_label.setGeometry(QRect(100, 440, 60, 25))
+
+        self.flashcards_box = QComboBox(self)
         self.flashcards_box.setDuplicatesEnabled(False)
         self.flashcards_box.setMaxCount(40)
+        self.flashcards_box.setGeometry(QRect(160, 440, 350, 25))
 
-        self.salvar_botao = QPushButton("salvar")
-        self.deletar_botao = QPushButton("deletar")
-        self.finalizar_botao = QPushButton("finalizar")
-        self.cancelar_botao = QPushButton("cancelar")
+        self.deletar_botao = QPushButton("deletar", self)
+        self.deletar_botao.setGeometry(QRect(520, 430, 177, 40))
 
-        self.salvar_shadow = QGraphicsDropShadowEffect() 
+        self.salvar_botao = QPushButton("salvar", self)
+        self.salvar_botao.setGeometry(QRect(97, 510, 302, 50))
+
+        self.cancelar_botao = QPushButton("cancelar", self)
+        self.cancelar_botao.setGeometry(QRect(400, 510, 302, 50))
+
+        self.adicionar_shadow = QGraphicsDropShadowEffect() 
         self.deletar_shadow = QGraphicsDropShadowEffect()
-        self.finalizar_shadow = QGraphicsDropShadowEffect()  
-        self.cancelar_shadow = QGraphicsDropShadowEffect()  
+        self.salvar_shadow = QGraphicsDropShadowEffect()  
+        self.cancelar_shadow = QGraphicsDropShadowEffect() 
 
-        self.pergunta_label = QLabel("pergunta")
-        self.resposta_label = QLabel("resposta")
-
-        self.pergunta_texto = QTextEdit()
-        self.resposta_texto = QTextEdit()
-        
-        self.titulo_label = QLabel("titulo")
-        self.titulo_line = QLineEdit()
-
-    def set_layout(self):
-        self.gridLayout = QGridLayout()
-        self.horizontalLayout_1 = QHBoxLayout()
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.verticalLayout = QVBoxLayout()
-
-        self.horizontalLayout_1.addWidget(self.titulo_label)
-        self.horizontalLayout_1.addWidget(self.titulo_line)
-        self.horizontalLayout_2.addWidget(self.flashcards_label)
-        self.horizontalLayout_2.addWidget(self.flashcards_box)
-        self.horizontalLayout_2.addWidget(self.deletar_botao)
-        
-        self.gridLayout.addWidget(self.pergunta_label, 3, 0)
-        self.gridLayout.addWidget(self.resposta_label, 3, 2)
-        self.gridLayout.addWidget(self.pergunta_texto, 4, 0)
-        self.gridLayout.addWidget(self.salvar_botao, 4, 1)
-        self.gridLayout.addWidget(self.resposta_texto, 4, 2)
-        self.gridLayout.addWidget(self.finalizar_botao, 5, 0)
-        self.gridLayout.addWidget(self.cancelar_botao, 5, 2)
-
-        self.verticalLayout.addLayout(self.horizontalLayout_1)
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.verticalLayout.addLayout(self.gridLayout)
-
-        self.setLayout(self.verticalLayout)
-
-    def set_style(self):
+    def _set_style(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        def style_button(button, shadow):
-            button.setStyleSheet('''
-                                        QPushButton{ 
-                                            font: 10pt;
-                                            height: 50px;
-                                            width: 80px;
-                                            background-color: rgb(235, 235, 235);
-                                            color: rgb(50, 50, 50);
-                                            border-radius: 10px;
-                                            border-color: rgb(56, 56, 56)
-                                        }
+        self.titulo_label.setStyleSheet("font: 11pt;")
 
-                                        QPushButton:hover{
-                                            background-color: rgb(107, 107, 107);
-                                            color: rgb(245, 245, 245);;
-                                        }
+        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="(120, 180, 255)", tam_fonte="10", tam_borda="5")
+        style_button(button=self.deletar_botao, shadow=self.deletar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
+        style_button(button=self.salvar_botao, shadow=self.salvar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
+        style_button(button=self.cancelar_botao, shadow=self.cancelar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
 
-                                        QPushButton:pressed{
-                                            background-color: rgb(75, 75, 75);
-                                            color: rgb(210, 210, 210);
-                                        }
-                                        ''')
+    def _setTexts(self):
+        pass
 
-            shadow.setXOffset(0)
-            shadow.setYOffset(2)
-            shadow.setBlurRadius(25)
-            shadow.setColor(QColor (200, 200, 200))
-
-            button.setGraphicsEffect(shadow) 
-
-        style_button(self.salvar_botao, self.salvar_shadow)
-        style_button(self.deletar_botao, self.deletar_shadow)
-        style_button(self.finalizar_botao, self.finalizar_shadow)
-        style_button(self.cancelar_botao, self.cancelar_shadow)
-
-        self.flashcards_box.setStyleSheet("height: 30px;")
+    def _setConnects(self):
+        self._connects["adicionar_botao"] = self.adicionar_botao.clicked.connect
+        self._connects["deletar_botao"] = self.deletar_botao.clicked.connect
+        self._connects["salvar_botao"] = self.salvar_botao.clicked.connect
+        self._connects["cancelar_botao"] = self.cancelar_botao.clicked.connect
 
     def clear(self):
         self.flashcards_box.clear()
