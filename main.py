@@ -52,11 +52,11 @@ class Main(QtWidgets.QStackedLayout):
         self.tela_ver_dia.revisar_atrasado_botao.clicked.connect(self.telaRevisao_atrasado)
         self.tela_ver_dia.revisar_atual_botao.clicked.connect(self.telaRevisao_atual)
 
-        self.tela_revisao.cancelar_botao.clicked.connect(self.cancelar_TelaRevisao)
-        self.tela_revisao.ver_pergunta_botao.clicked.connect(self.mostrarPergunta)
-        self.tela_revisao.ver_resposta_botao.clicked.connect(self.mostrarResposta)
-        self.tela_revisao.acertei_botao.clicked.connect(self.acerteiResposta)
-        self.tela_revisao.errei_botao.clicked.connect(self.erreiResposta)
+        self.tela_revisao.setConnect("voltar_botao", self.voltar_TelaRevisao)
+        self.tela_revisao.setConnect("anterior_botao", self.anterior_ou_proximo)
+        self.tela_revisao.setConnect("proximo_botao", self.anterior_ou_proximo)
+        self.tela_revisao.setConnect("acertei_botao", self.acerteiResposta)
+        self.tela_revisao.setConnect("errei_botao", self.erreiResposta)
 
     def abrir_TelaInicial(self):
         self.setCurrentIndex(0)
@@ -165,10 +165,11 @@ class Main(QtWidgets.QStackedLayout):
         filehandler.close()
 
         self.tela_revisao.titulo.iniciarNiveis()
+        self.tela_revisao.setText("texto", self.tela_revisao.titulo.nivel[self.tela_revisao.titulo.cursor][0])
 
         self.setCurrentIndex(3)
 
-    def cancelar_TelaRevisao(self):
+    def voltar_TelaRevisao(self):
         self.tela_revisao.titulo = None
 
         self.abrir_TelaVerDia()
@@ -183,13 +184,13 @@ class Main(QtWidgets.QStackedLayout):
         if titulo:
             self.abrir_TelaRevisao(titulo.text())
 
-    def mostrarPergunta(self):
-        self.tela_revisao.texto.setText(self.tela_revisao.titulo.nivel[self.tela_revisao.titulo.cursor][0])
-        self.tela_revisao.texto.setAlignment(Qt.AlignCenter)
-
-    def mostrarResposta(self):
-        self.tela_revisao.texto.setText(self.tela_revisao.titulo.nivel[self.tela_revisao.titulo.cursor][1])
-        self.tela_revisao.texto.setAlignment(Qt.AlignCenter)
+    def anterior_ou_proximo(self):
+        if self.tela_revisao.pergunta_ou_resposta.text() == "pergunta":
+            self.tela_revisao.setText("pergunta_ou_resposta", "resposta")
+            self.tela_revisao.setText("texto", self.tela_revisao.titulo.nivel[self.tela_revisao.titulo.cursor][1])
+        else:
+            self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
+            self.tela_revisao.setText("texto", self.tela_revisao.titulo.nivel[self.tela_revisao.titulo.cursor][0])
 
     def acerteiResposta(self):
         if self.tela_revisao.titulo.acertei_ou_errei(True) == False:

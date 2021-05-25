@@ -46,14 +46,15 @@ else:
 	print("SERÁ")
 '''
 
-filehandler = open ("flashcards\\lucas.obj", 'rb') 
+filehandler = open("flashcards\\teste.obj", 'rb') 
 a = pickle.load(filehandler)
+
 print(a.flashcards)
 print(a.datas)
-a.datas[0] = date.today() + timedelta(days=-2)
 
-filehandler = open("flashcards\\lucas.obj", 'wb') 
+a.datas = [date.today() + timedelta(days=0)]
+
+filehandler = open("flashcards\\teste.obj", 'wb') 
 pickle.dump(a, filehandler)
-
 
 

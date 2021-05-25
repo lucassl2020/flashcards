@@ -13,7 +13,11 @@ class ObjetoCriarFlashcards():
 
 	def salvar(self, pergunta, resposta):
 		try:
-			self.flashcards[pergunta] = resposta
+			if pergunta[-1] != "?":
+				self.flashcards[pergunta + "?"] = resposta
+			else:
+				self.flashcards[pergunta] = resposta
+
 			return True
 		except:
 			return False
@@ -63,7 +67,7 @@ class ObjetoCriarFlashcards():
 			self.cursor = 0
 			self.ciclo += 1
 
-		if self.ciclo >= 6:
+		if self.ciclo >= 3:
 			return False
 
 		return True
@@ -81,6 +85,7 @@ class ObjetoCriarFlashcards():
 		return False
 
 	def modificarDatas(self):
+
 		del self.datas[0]
 		self.nivel = []
 		self.cursor = 0
