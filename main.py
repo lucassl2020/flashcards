@@ -8,14 +8,12 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 
-from tela_inicial import TelaInicial
-from tela_ver_dia import TelaVerDia
-from tela_criar_flashcards import TelaCriarFlashcards
-from objeto_flashcards import ObjetoFlashcards
-from tela_revisao import TelaRevisao
-from objeto_revisao import ObjetoRevisao
-
-
+from TelaInicial import TelaInicial
+from TelaVerDia import TelaVerDia
+from TelaCriarFlashcards import TelaCriarFlashcards
+from ObjetoFlashcards import ObjetoFlashcards
+from TelaRevisao import TelaRevisao
+from ObjetoRevisao import ObjetoRevisao
 
 class Main(QtWidgets.QStackedLayout):
     def __init__(self, parent=None):
