@@ -10,8 +10,10 @@ class TelaVerDia(QWidget, SetInterface):
         self._settings()
         self._create_widgets()
         self._set_style()
-        self._setTexts()
-        self._setConnects()
+        self._createSetTexts()
+        self._createGetTexts()
+        self._createConnects()
+        self._createSetClears()
 
     def _settings(self):
         self.resize(800, 600)
@@ -36,7 +38,7 @@ class TelaVerDia(QWidget, SetInterface):
         self.revisar_atrasado_botao = QPushButton("revisar atrasado", self)
         self.revisar_atrasado_botao.setGeometry(QRect(95, 440, 301, 41))
 
-        self.revisar_atual_botao = QPushButton("revisar atual", self)
+        self.revisar_atual_botao = QPushButton("revisar do dia", self)
         self.revisar_atual_botao.setGeometry(QRect(400, 440, 301, 41))
 
         self.voltar_shadow = QGraphicsDropShadowEffect()
@@ -46,17 +48,38 @@ class TelaVerDia(QWidget, SetInterface):
     def _set_style(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="10")
-        style_button(button=self.revisar_atrasado_botao, shadow=self.revisar_atrasado_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
-        style_button(button=self.revisar_atual_botao, shadow=self.revisar_atual_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="10")
+        style_button(button=self.revisar_atrasado_botao, shadow=self.revisar_atrasado_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.revisar_atual_botao, shadow=self.revisar_atual_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
 
-    def _setTexts(self):
-        pass
+    def _createSetTexts(self):
+        self._setTexts["revisoes_atrasadas_lista"] = self.revisoes_atrasadas_lista.addItem
+        self._setTexts["revisoes_do_dia_lista"] = self.revisoes_do_dia_lista.addItem
 
-    def _setConnects(self):
+    def _createGetTexts(self):
+        self._getTexts["revisoes_atrasadas_lista"] = self.getText_revisoesAtrasadas
+        self._getTexts["revisoes_do_dia_lista"] = self.getText_revisoesDoDia
+
+    def _createConnects(self):
         self._connects["voltar_botao"] = self.voltar_botao.clicked.connect
         self._connects["revisar_atrasado_botao"] = self.revisar_atrasado_botao.clicked.connect
         self._connects["revisar_atual_botao"] = self.revisar_atual_botao.clicked.connect
+
+    def _createSetClears(self):
+        self._clears["revisoes_atrasadas_lista"] = self.revisoes_atrasadas_lista.clear
+        self._clears["revisoes_do_dia_lista"] = self.revisoes_do_dia_lista.clear
+
+    def getText_revisoesAtrasadas(self):
+        current_item = self.revisoes_atrasadas_lista.currentItem()
+        if current_item:
+            return current_item.text()
+        return ""
+
+    def getText_revisoesDoDia(self):
+        current_item = self.revisoes_do_dia_lista.currentItem()
+        if current_item:
+            return current_item.text()
+        return ""
 
 
 if __name__ == '__main__':

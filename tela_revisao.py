@@ -7,14 +7,13 @@ from Suporte import style_button, SetInterface
 class TelaRevisao(QWidget, SetInterface):
     def __init__(self, parent=None):
         super(TelaRevisao, self).__init__(parent)
-        self.titulo = None
-        self._texts = {}
-
         self._settings()
         self._createWidgets()
         self._setStyle()
-        self._setTexts()
-        self._setConnects()
+        self._createSetTexts()
+        self._createGetTexts()
+        self._createConnects()
+        self._createSetClears()
 
     def _settings(self):
         self.resize(800, 600)
@@ -56,22 +55,28 @@ class TelaRevisao(QWidget, SetInterface):
 
         self.texto.setStyleSheet("font: 12pt;")
 
-        style_button(button=self.anterior_botao, shadow=self.anterior_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="20")
-        style_button(button=self.proximo_botao, shadow=self.proximo_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="20")
-        style_button(button=self.acertei_botao, shadow=self.acertei_shadow, cor="(156, 255, 176)", tam_fonte="10", tam_borda="5")
-        style_button(button=self.errei_botao, shadow=self.errei_shadow, cor="(255, 135, 135)", tam_fonte="10", tam_borda="5")
-        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="10")
+        style_button(button=self.anterior_botao, shadow=self.anterior_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="20")
+        style_button(button=self.proximo_botao, shadow=self.proximo_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="20")
+        style_button(button=self.acertei_botao, shadow=self.acertei_shadow, cor="(156, 255, 176)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.errei_botao, shadow=self.errei_shadow, cor="(255, 135, 135)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="10")
 
-    def _setTexts(self):
-        self._texts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.setText
-        self._texts["texto"] = self.setText_texto
+    def _createSetTexts(self):
+        self._setTexts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.setText
+        self._setTexts["texto"] = self.setText_texto
 
-    def _setConnects(self):
+    def _createGetTexts(self):
+        self._getTexts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.text
+
+    def _createConnects(self):
         self._connects["anterior_botao"] = self.anterior_botao.clicked.connect
         self._connects["proximo_botao"] = self.proximo_botao.clicked.connect
         self._connects["acertei_botao"] = self.acertei_botao.clicked.connect
         self._connects["errei_botao"] = self.errei_botao.clicked.connect
         self._connects["voltar_botao"] = self.voltar_botao.clicked.connect
+
+    def _createSetClears(self):
+        pass
 
     def setText_texto(self, texto):
         self.texto.setText(texto)

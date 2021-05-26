@@ -10,8 +10,10 @@ class TelaCriarFlashcards(QWidget, SetInterface):
         self._settings()
         self._create_widgets()
         self._set_style()
-        self._setTexts()
-        self._setConnects()
+        self._createSetTexts()
+        self._createGetTexts()
+        self._createConnects()
+        self._createSetClears()
 
     def _settings(self):
         self.resize(800, 600)
@@ -66,25 +68,31 @@ class TelaCriarFlashcards(QWidget, SetInterface):
 
         self.titulo_label.setStyleSheet("font: 11pt;")
 
-        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="(120, 180, 255)", tam_fonte="10", tam_borda="5")
-        style_button(button=self.deletar_botao, shadow=self.deletar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
-        style_button(button=self.salvar_botao, shadow=self.salvar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
-        style_button(button=self.cancelar_botao, shadow=self.cancelar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_borda="5")
+        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="(120, 180, 255)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.deletar_botao, shadow=self.deletar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.salvar_botao, shadow=self.salvar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.cancelar_botao, shadow=self.cancelar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
 
-    def _setTexts(self):
+    def _createSetTexts(self):
         pass
 
-    def _setConnects(self):
+    def _createGetTexts(self):
+        self._getTexts["titulo_line"] = self.titulo_line.text
+        self._getTexts["pergunta_texto"] = self.pergunta_texto.toPlainText
+        self._getTexts["resposta_texto"] = self.resposta_texto.toPlainText
+        self._getTexts["flashcards_box"] = self.flashcards_box.currentText
+        
+    def _createConnects(self):
         self._connects["adicionar_botao"] = self.adicionar_botao.clicked.connect
         self._connects["deletar_botao"] = self.deletar_botao.clicked.connect
         self._connects["salvar_botao"] = self.salvar_botao.clicked.connect
         self._connects["cancelar_botao"] = self.cancelar_botao.clicked.connect
 
-    def clear(self):
-        self.flashcards_box.clear()
-        self.pergunta_texto.setText("")
-        self.resposta_texto.setText("")
-        self.titulo_line.setText("")
+    def _createSetClears(self):
+        self._clears["flashcards_box"] = self.flashcards_box.clear
+        self._clears["pergunta_texto"] = self.pergunta_texto.clear
+        self._clears["resposta_texto"] = self.resposta_texto.clear
+        self._clears["titulo_line"] = self.titulo_line.clear
 
 
 if __name__ == '__main__':

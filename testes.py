@@ -21,16 +21,19 @@ def salvarObjeto(objeto, nome):
 	filehandler.close()
 
 
+#nomes_e_dias = (["1", 0], ["2", 0], ["3", 0])
+nomes_e_dias = (["1", 0], ["1", 0])
 
-nome = "1111"
-data = date.today() + timedelta(days=0)
+for nome, dia in nomes_e_dias:
+	data1 = date.today() + timedelta(days=dia)
+	data2 = date.today() + timedelta(days=dia-1)
 
-objeto = abrirObjeto(nome)
+	objeto = abrirObjeto(nome)
 
-printObjeto(objeto)
+	printObjeto(objeto)
 
-objeto.datas = [data, data]
+	objeto._datas = [data1, data2]
 
-printObjeto(objeto)
+	printObjeto(objeto)
 
-salvarObjeto(objeto, nome)
+	salvarObjeto(objeto, nome)

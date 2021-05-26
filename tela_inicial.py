@@ -11,8 +11,10 @@ class TelaInicial(QWidget, SetInterface):
         self._settings()
         self._create_widgets()
         self._set_style()
-        self._setTexts()
-        self._setConnects()
+        self._createSetTexts()
+        self._createGetTexts()
+        self._createConnects()
+        self._createSetClears()
 
     def _settings(self):
         self.resize(350, 300)
@@ -31,16 +33,22 @@ class TelaInicial(QWidget, SetInterface):
     def _set_style(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        style_button(button=self.ver_dia_botao, shadow=self.ver_dia_shadow, cor="(235, 235, 235)", tam_fonte="14", tam_borda="5")
-        style_button(button=self.criar_flashcards_botao, shadow=self.criar_flashcards_shadow, cor="(235, 235, 235)", tam_fonte="14", tam_borda="5")
+        style_button(button=self.ver_dia_botao, shadow=self.ver_dia_shadow, cor="(235, 235, 235)", tam_fonte="14", tam_border_radius="5")
+        style_button(button=self.criar_flashcards_botao, shadow=self.criar_flashcards_shadow, cor="(235, 235, 235)", tam_fonte="14", tam_border_radius="5")
 
-    def _setTexts(self):
+    def _createSetTexts(self):
         pass
 
-    def _setConnects(self):
+    def _createGetTexts(self):
+        pass
+
+    def _createConnects(self):
         self._connects["ver_dia_botao"] = self.ver_dia_botao.clicked.connect
         self._connects["criar_flashcards_botao"] = self.criar_flashcards_botao.clicked.connect
 
+    def _createSetClears(self):
+        pass
+        
 
 if __name__ == '__main__':
     root = QApplication(sys.argv)
