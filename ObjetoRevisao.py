@@ -31,18 +31,20 @@ class ObjetoRevisao():
 	def proximoCursor(self):
 		modo_revisao_ordenar = 1
 		modo_revisao_retirar = 2
+		indice_ordem_pergunta = 2
 
 		self.cursor += 1
 
 		if self.cursor >= len(self.flashcards):
+			self.cursor = 0
+			self.ciclo += 1
+
 			if self.modo == modo_revisao_ordenar:
 			    self.flashcards = sorted(self.flashcards, key=lambda flashcards: flashcards[indice_ordem_pergunta]) 
 			elif self.modo == modo_revisao_retirar:
 				if len(self.flashcards) == 0:
 					self.ciclo = self.max_ciclo
 
-			self.cursor = 0
-			self.ciclo += 1
 
 	def acabouRevisao(self):
 		if self.ciclo >= self.max_ciclo:
@@ -52,11 +54,13 @@ class ObjetoRevisao():
 	def acerteiResposta(self):
 		modo_revisao_ordenar = 1
 		modo_revisao_retirar = 2
+		indice_ordem_pergunta = 2
 
 		if self.modo == modo_revisao_ordenar:
 			self.flashcards[self.cursor][indice_ordem_pergunta] += 1
 		elif self.modo == modo_revisao_retirar:
 			del self.flashcards[self.cursor]
+			self.cursor -= 1
 
 		self.proximoCursor()
 
