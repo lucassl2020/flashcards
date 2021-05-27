@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QTextEdit, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QTextEdit, QLabel, QLineEdit
 from PyQt5.QtCore import Qt, QRect
 import sys
 from Suporte import style_button, SetInterface
@@ -20,6 +20,14 @@ class TelaRevisao(QWidget, SetInterface):
         self.setWindowTitle("Revisão")
  
     def _createWidgets(self):
+        self.ciclo_label = QLabel("ciclo:", self)
+        self.ciclo_label.setGeometry(QRect(600, 20, 90, 40))
+        self.ciclo_label.setAlignment(Qt.AlignCenter)
+
+        self.ciclo_line = QLineEdit(self)
+        self.ciclo_line.setGeometry(QRect(670, 25, 90, 30))
+        self.ciclo_line.setEnabled(False)
+
         self.pergunta_ou_resposta = QLabel("pergunta", self)
         self.pergunta_ou_resposta.setGeometry(QRect(350, 85, 100, 30))
         self.pergunta_ou_resposta.setAlignment(Qt.AlignCenter)
@@ -52,6 +60,7 @@ class TelaRevisao(QWidget, SetInterface):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
         self.pergunta_ou_resposta.setStyleSheet("font: 14pt;")
+        self.ciclo_label.setStyleSheet("font: 12pt;")
 
         self.texto.setStyleSheet("font: 12pt;")
 
@@ -64,6 +73,7 @@ class TelaRevisao(QWidget, SetInterface):
     def _createSetTexts(self):
         self._setTexts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.setText
         self._setTexts["texto"] = self.setText_texto
+        self._setTexts["ciclo_line"] = self.ciclo_line.setText
 
     def _createGetTexts(self):
         self._getTexts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.text
@@ -76,7 +86,8 @@ class TelaRevisao(QWidget, SetInterface):
         self._connects["voltar_botao"] = self.voltar_botao.clicked.connect
 
     def _createSetClears(self):
-        pass
+        self._clears["texto"] = self.texto.clear
+        self._clears["ciclo_line"] = self.ciclo_line.clear
 
     def setText_texto(self, texto):
         self.texto.setText(texto)

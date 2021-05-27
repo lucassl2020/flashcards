@@ -43,8 +43,8 @@ class ObjetoFlashcards():
 	def deletarFlashcard(self, pergunta):
 		del self._flashcards[pergunta]
 
-	def adicionarData(self, qtd_dias):
-		self._datas.append(date.today() + timedelta(days=qtd_dias))
+	def adicionarData(self, data):
+		self._datas.append(data)
 
-	def deletarData(self):
-		del self._datas[0]
+	def deletarData(self, index):
+		del self._datas[index]

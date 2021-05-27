@@ -6,21 +6,25 @@ from datetime import timedelta, date
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDate
+from PyQt5.QtGui import QIcon
 
 from TelaInicial import TelaInicial
 from TelaVerDia import TelaVerDia
 from TelaCriarFlashcards import TelaCriarFlashcards
 from ObjetoFlashcards import ObjetoFlashcards
 from TelaRevisao import TelaRevisao
+from TelaOpcoesRevisao import TelaOpcoesRevisao
+from TelaDatas import TelaDatas
 from ObjetoRevisao import ObjetoRevisao
+
 
 class Main(QtWidgets.QStackedLayout):
     def __init__(self, parent=None):
         super(Main, self).__init__(parent)
         self._objetoFlashcards = ObjetoFlashcards()
         self._objetoRevisao = ObjetoRevisao()
-
+        self.icon = QIcon("icone.png")
         self._createScreens()
         self._connectWidgets()
 
@@ -29,11 +33,15 @@ class Main(QtWidgets.QStackedLayout):
         self.tela_ver_dia = TelaVerDia()
         self.tela_criar_flashcards = TelaCriarFlashcards()
         self.tela_revisao = TelaRevisao()
+        self.tela_opcoes_revisao = TelaOpcoesRevisao()
+        self.tela_datas = TelaDatas()
 
         self.addWidget(self.tela_inicial)
         self.addWidget(self.tela_ver_dia)
         self.addWidget(self.tela_criar_flashcards)
         self.addWidget(self.tela_revisao)
+        self.addWidget(self.tela_opcoes_revisao)
+        self.addWidget(self.tela_datas)
 
     def _connectWidgets(self):
         self.tela_inicial.setConnect("ver_dia_botao", self.abrir_TelaVerDia)
@@ -52,7 +60,14 @@ class Main(QtWidgets.QStackedLayout):
         self.tela_revisao.setConnect("anterior_botao", self.anteriorOuProximo_TelaRevisao)
         self.tela_revisao.setConnect("proximo_botao", self.anteriorOuProximo_TelaRevisao)
         self.tela_revisao.setConnect("acertei_botao", self.acerteiResposta)
-        self.tela_revisao.setConnect("errei_botao", self.erreiResposta)        
+        self.tela_revisao.setConnect("errei_botao", self.erreiResposta)  
+
+        self.tela_opcoes_revisao.setConnect("iniciar_botao", self.abrir_TelaRevisao) 
+        self.tela_opcoes_revisao.setConnect("voltar_botao", self.abrir_TelaVerDia) 
+
+        self.tela_datas.setConnect("adicionar_botao", self.adicionar_TelaDatas) 
+        self.tela_datas.setConnect("remover_botao", self.remover_TelaDatas) 
+        self.tela_datas.setConnect("finalizar_botao", self.finalizar_TelaDatas) 
 
     def abrirObjetoFlashcards(self, path, arquivo):
         filehandler = open(path + "\\" + arquivo, 'rb')
@@ -113,15 +128,14 @@ class Main(QtWidgets.QStackedLayout):
 
         if pergunta != "" and resposta != "":
             if self.tela_criar_flashcards.flashcards_box.count() < 40:
+                if pergunta[-1] != "?":
+                    pergunta += "?"
+
                 if pergunta in self._objetoFlashcards.flashcards:
                     QMessageBox.information(None, "FLASHCARDS", "Pergunta ja criada")
                 else:
-                    if pergunta[-1] != "?":
-                        self._objetoFlashcards.adicionarFlashcard(pergunta+"?", resposta)
-                        self.tela_criar_flashcards.flashcards_box.addItem(pergunta+"?")
-                    else:
-                        self._objetoFlashcards.adicionarFlashcard(pergunta, resposta)
-                        self.tela_criar_flashcards.flashcards_box.addItem(pergunta)
+                    self._objetoFlashcards.adicionarFlashcard(pergunta, resposta)
+                    self.tela_criar_flashcards.flashcards_box.addItem(pergunta)
             else:
                 QMessageBox.information(None, "FLASHCARDS", "Limite de 40 flashcards atingidos")
         else:
@@ -137,7 +151,6 @@ class Main(QtWidgets.QStackedLayout):
 
     def salvar_TelaCriarFlashcards(self):
         titulo = self.tela_criar_flashcards.getText("titulo_line")
-        pathFlashcards = "flashcards"
 
         if titulo != "":
             if self._objetoFlashcards.isEmptyFlascards():
@@ -151,31 +164,38 @@ class Main(QtWidgets.QStackedLayout):
                     question_finalizar = QMessageBox.question(None, "Salvar", "Deseja realmente salvar os flashcards?", QMessageBox.Yes, QMessageBox.No)
 
                     if question_finalizar == QMessageBox.Yes:
-                        qtd_dias = [3, 10, 24, 54, 114]
-                        for qtd in qtd_dias:
-                             self._objetoFlashcards.adicionarData(qtd)
-                        
                         self._objetoFlashcards.nome = titulo
-
-                        self.salvarObjetoFlashcards(pathFlashcards, self._objetoFlashcards)
-
-                        self._objetoFlashcards.new()
 
                         self.tela_criar_flashcards.clear("all")
 
-                        self.abrir_TelaInicial()
+                        self.abrir_telaDatas()
+                        
         else:
             QMessageBox.information(None, "FLASHCARDS", "Dê um titulo")
 
-    def abrir_TelaRevisao(self, nome_objetoFlashcards):
-        pathFlashcards = "flashcards"
+    def abrir_TelaOpcoesRevisao(self):
+        self.tela_opcoes_revisao.clear("all")
+
+        self.setCurrentIndex(4)
+
+    def abrir_TelaRevisao(self):
         indice_pergunta = 0
 
-        self._objetoRevisao.objetoFlashcards = self.abrirObjetoFlashcards(pathFlashcards, nome_objetoFlashcards + ".obj")
+        self.tela_revisao.clear("all")
 
         self._objetoRevisao.copiarFlashcardsLista()
+        self._objetoRevisao.adicionarAoMaxCiclo(self.tela_opcoes_revisao.qtd_ciclos_spinbox.value())
 
+        if self.tela_opcoes_revisao.ordenar_flashcards_radiobutton.isChecked():
+            modo_revisao_ordenar = 1
+            self. _objetoRevisao.modo = modo_revisao_ordenar
+        elif self.tela_opcoes_revisao.retirar_flashcard_radiobutton.isChecked():
+            modo_revisao_retirar = 2
+            self._objetoRevisao.modo = modo_revisao_retirar
+
+        self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
         self.tela_revisao.setText("texto", self._objetoRevisao.flashcards[self._objetoRevisao.cursor][indice_pergunta])
+        self.tela_revisao.setText("ciclo_line", "1")
 
         self.setCurrentIndex(3)
 
@@ -185,14 +205,22 @@ class Main(QtWidgets.QStackedLayout):
         self.abrir_TelaVerDia()
 
     def revisarAtrasado_TelaVerDia(self):
+        pathFlashcards = "flashcards"
+
         nome_objetoFlashcards = self.tela_ver_dia.getText("revisoes_atrasadas_lista")
+
         if nome_objetoFlashcards:
-            self.abrir_TelaRevisao(nome_objetoFlashcards)
+            self._objetoRevisao.objetoFlashcards = self.abrirObjetoFlashcards(pathFlashcards, nome_objetoFlashcards + ".obj")
+            self.abrir_TelaOpcoesRevisao()
 
     def revisarDoDia_TelaVerDia(self):
+        pathFlashcards = "flashcards"
+
         nome_objetoFlashcards = self.tela_ver_dia.getText("revisoes_do_dia_lista")
+
         if nome_objetoFlashcards:
-            self.abrir_TelaRevisao(nome_objetoFlashcards)
+            self._objetoRevisao.objetoFlashcards = self.abrirObjetoFlashcards(pathFlashcards, nome_objetoFlashcards + ".obj")
+            self.abrir_TelaOpcoesRevisao()
 
     def anteriorOuProximo_TelaRevisao(self):
         indice_pergunta = 0
@@ -206,32 +234,72 @@ class Main(QtWidgets.QStackedLayout):
             self.tela_revisao.setText("texto", self._objetoRevisao.flashcards[self._objetoRevisao.cursor][indice_pergunta])
 
     def acerteiResposta(self):
-        indice_pergunta = 0
-        pathFlashcards = "flashcards"
-
         self._objetoRevisao.acerteiResposta()
 
-        if self._objetoRevisao.acabouRevisao():
-            self._objetoRevisao.objetoFlashcards.deletarData()
-            self.salvarObjetoFlashcards(pathFlashcards, self._objetoRevisao.objetoFlashcards)
-            self.voltar_TelaRevisao()
-        else:
-            self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
-            self.tela_revisao.setText("texto", self._objetoRevisao.flashcards[self._objetoRevisao.cursor][indice_pergunta])
+        self.proximo_ObjetoRevisao()
 
-    def erreiResposta(self):
-        indice_pergunta = 0
-        pathFlashcards = "flashcards"
-
+    def erreiResposta(self, ):
         self._objetoRevisao.erreiResposta()
 
+        self.proximo_ObjetoRevisao()
+
+    def proximo_ObjetoRevisao(self): 
+        pathFlashcards = "flashcards"
+        indice_pergunta = 0
+        indice_primeira_data = 0
+
         if self._objetoRevisao.acabouRevisao():
-            self._objetoRevisao.objetoFlashcards.deletarData()
+            self._objetoRevisao.objetoFlashcards.deletarData(indice_primeira_data)
             self.salvarObjetoFlashcards(pathFlashcards, self._objetoRevisao.objetoFlashcards)
             self.voltar_TelaRevisao()
         else:
             self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
             self.tela_revisao.setText("texto", self._objetoRevisao.flashcards[self._objetoRevisao.cursor][indice_pergunta])
+            self.tela_revisao.setText("ciclo_line", str(self._objetoRevisao.ciclo+1))
+
+    def abrir_telaDatas(self):
+        self.tela_datas.clear("all")
+
+        hoje = date.today()
+
+        self.tela_datas.calendario_widget.setMinimumDate(QDate(hoje.year, hoje.month, hoje.day))
+
+        self.setCurrentIndex(5)
+
+    def adicionar_TelaDatas(self):
+        data_selecionada = self.tela_datas.calendario_widget.selectedDate()
+
+        ano = data_selecionada.year()
+        mes = data_selecionada.month()
+        dia = data_selecionada.day()
+
+        data = date(ano, mes, dia)
+        data_str = str(dia) + "/" + str(mes) + "/" + str(ano)         
+        
+        if data not in self._objetoFlashcards.datas:
+            self._objetoFlashcards.adicionarData(data)
+
+            self.tela_datas.setText("datas_listwidget", data_str)
+
+    def remover_TelaDatas(self):
+        indice_data_selected = self.tela_datas.datas_listwidget.currentRow()
+
+        if indice_data_selected > -1:
+            self.tela_datas.datas_listwidget.takeItem(indice_data_selected)
+
+            self._objetoFlashcards.deletarData(indice_data_selected)
+
+    def finalizar_TelaDatas(self):
+        pathFlashcards = "flashcards"
+        
+        if self._objetoFlashcards.isEmptyDatas():
+            QMessageBox.information(None, "FLASHCARDS", "Nenhuma data foi definida")
+        else:
+            self.salvarObjetoFlashcards(pathFlashcards, self._objetoFlashcards)
+
+            self._objetoFlashcards.new()
+
+            self.abrir_TelaInicial()
 
 
 if __name__ == '__main__':
