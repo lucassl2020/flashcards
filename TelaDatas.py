@@ -24,17 +24,23 @@ class TelaDatas(QWidget, SetInterface):
         self.adicione_datas.setGeometry(QRect(0, 20, 800, 20))
         self.adicione_datas.setAlignment(Qt.AlignCenter)
 
+        self.criar_datas_padrao_botao = QPushButton("criar data padrão", self)
+        self.criar_datas_padrao_botao.setGeometry(QRect(280, 80, 100, 30))
+
+        self.carregar_datas_padrao_botao = QPushButton("carregar data padrão", self)
+        self.carregar_datas_padrao_botao.setGeometry(QRect(400, 80, 120, 30))
+
         self.calendario_widget = QCalendarWidget(self)
-        self.calendario_widget.setGeometry(QRect(90, 140, 320, 191))
+        self.calendario_widget.setGeometry(QRect(90, 200, 320, 191))
 
         self.datas_listwidget = QListWidget(self)
-        self.datas_listwidget.setGeometry(QRect(450, 140, 260, 192))
+        self.datas_listwidget.setGeometry(QRect(450, 200, 260, 192))
 
         self.adicionar_botao = QPushButton("adicionar", self)
-        self.adicionar_botao.setGeometry(QRect(90, 332, 321, 41))
+        self.adicionar_botao.setGeometry(QRect(90, 392, 321, 41))
 
         self.remover_botao = QPushButton("remover", self)
-        self.remover_botao.setGeometry(QRect(450, 332, 261, 41))
+        self.remover_botao.setGeometry(QRect(450, 392, 261, 41))
 
         self.finalizar_botao = QPushButton("finalizar", self)
         self.finalizar_botao.setGeometry(QRect(325, 500, 150, 41))
@@ -42,6 +48,8 @@ class TelaDatas(QWidget, SetInterface):
         self.adicionar_shadow = QGraphicsDropShadowEffect()
         self.remover_shadow = QGraphicsDropShadowEffect()
         self.finalizar_shadow = QGraphicsDropShadowEffect()
+        self.criar_datas_shadow = QGraphicsDropShadowEffect()
+        self.carregar_datas_shadow = QGraphicsDropShadowEffect()
 
     def _setStyle(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -53,6 +61,8 @@ class TelaDatas(QWidget, SetInterface):
         style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
         style_button(button=self.remover_botao, shadow=self.remover_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
         style_button(button=self.finalizar_botao, shadow=self.finalizar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.criar_datas_padrao_botao, shadow=self.criar_datas_shadow, cor="(235, 235, 235)", tam_fonte="8", tam_border_radius="5")
+        style_button(button=self.carregar_datas_padrao_botao, shadow=self.carregar_datas_shadow, cor="(235, 235, 235)", tam_fonte="8", tam_border_radius="5")
 
     def _createSetTexts(self):
         self._setTexts["datas_listwidget"] = self.datas_listwidget.addItem
