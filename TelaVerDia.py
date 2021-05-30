@@ -48,9 +48,9 @@ class TelaVerDia(QWidget, SetInterface):
     def _set_style(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="10")
-        style_button(button=self.revisar_atrasado_botao, shadow=self.revisar_atrasado_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.revisar_atual_botao, shadow=self.revisar_atual_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="10")
+        style_button(button=self.revisar_atrasado_botao, shadow=self.revisar_atrasado_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.revisar_atual_botao, shadow=self.revisar_atual_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
 
     def _createSetTexts(self):
         self._setTexts["revisoes_atrasadas_lista"] = self.revisoes_atrasadas_lista.addItem

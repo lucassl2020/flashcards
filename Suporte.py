@@ -46,9 +46,11 @@ class SetInterface():
 
 
 def style_button(button, shadow, cor, tam_fonte, tam_border_radius):
+    global cores
+
     button.setStyleSheet("QPushButton{\n"
                                 "font: " + tam_fonte + "pt;\n"
-                                "background-color: rgb" + cor + ";\n"
+                                "background-color: rgb" + cores[cor] + ";\n"
                                  "color: rgb(50, 50, 50);\n"
                                 "border-radius: " + tam_border_radius + "px;\n"
                                 "border: 1px double;\n"
@@ -70,4 +72,7 @@ def style_button(button, shadow, cor, tam_fonte, tam_border_radius):
     shadow.setBlurRadius(10)
     shadow.setColor(QColor (200, 200, 200))
 
-    button.setGraphicsEffect(shadow) 
+    button.setGraphicsEffect(shadow)
+
+
+cores = {"cinza": "(235, 235, 235)", "azul": "(125, 185, 255)", "vermelho": "(255, 135, 135)", "verde": "(156, 255, 176)"}

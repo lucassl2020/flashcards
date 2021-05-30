@@ -58,11 +58,11 @@ class TelaDatas(QWidget, SetInterface):
 
         self.calendario_widget.setStyleSheet("color: rgb(0, 0, 0);")
         
-        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.remover_botao, shadow=self.remover_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.finalizar_botao, shadow=self.finalizar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.criar_datas_padrao_botao, shadow=self.criar_datas_shadow, cor="(235, 235, 235)", tam_fonte="8", tam_border_radius="5")
-        style_button(button=self.carregar_datas_padrao_botao, shadow=self.carregar_datas_shadow, cor="(235, 235, 235)", tam_fonte="8", tam_border_radius="5")
+        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.remover_botao, shadow=self.remover_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.finalizar_botao, shadow=self.finalizar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.criar_datas_padrao_botao, shadow=self.criar_datas_shadow, cor="cinza", tam_fonte="8", tam_border_radius="5")
+        style_button(button=self.carregar_datas_padrao_botao, shadow=self.carregar_datas_shadow, cor="cinza", tam_fonte="8", tam_border_radius="5")
 
     def _createSetTexts(self):
         self._setTexts["datas_listwidget"] = self.datas_listwidget.addItem

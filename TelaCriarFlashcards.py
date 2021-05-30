@@ -68,10 +68,10 @@ class TelaCriarFlashcards(QWidget, SetInterface):
 
         self.titulo_label.setStyleSheet("font: 11pt;")
 
-        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="(120, 180, 255)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.deletar_botao, shadow=self.deletar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.salvar_botao, shadow=self.salvar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.cancelar_botao, shadow=self.cancelar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="azul", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.deletar_botao, shadow=self.deletar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.salvar_botao, shadow=self.salvar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.cancelar_botao, shadow=self.cancelar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
 
     def _createSetTexts(self):
         pass

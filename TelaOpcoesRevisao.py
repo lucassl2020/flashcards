@@ -54,8 +54,8 @@ class TelaOpcoesRevisao(QWidget, SetInterface):
     def _setStyle(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        style_button(button=self.iniciar_botao, shadow=self.iniciar_shadow, cor="(130, 190, 255)", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="(235, 235, 235)", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.iniciar_botao, shadow=self.iniciar_shadow, cor="azul", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
 
     def _createSetTexts(self):
         pass

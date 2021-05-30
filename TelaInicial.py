@@ -33,8 +33,8 @@ class TelaInicial(QWidget, SetInterface):
     def _set_style(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        style_button(button=self.ver_dia_botao, shadow=self.ver_dia_shadow, cor="(235, 235, 235)", tam_fonte="14", tam_border_radius="5")
-        style_button(button=self.criar_flashcards_botao, shadow=self.criar_flashcards_shadow, cor="(235, 235, 235)", tam_fonte="14", tam_border_radius="5")
+        style_button(button=self.ver_dia_botao, shadow=self.ver_dia_shadow, cor="cinza", tam_fonte="14", tam_border_radius="5")
+        style_button(button=self.criar_flashcards_botao, shadow=self.criar_flashcards_shadow, cor="cinza", tam_fonte="14", tam_border_radius="5")
 
     def _createSetTexts(self):
         pass
