@@ -1,5 +1,4 @@
 *.exe
 *.ui
-imgs-ideias
 testes.py
 __pycache__

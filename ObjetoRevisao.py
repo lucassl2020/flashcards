@@ -1,32 +1,36 @@
 from random import shuffle
+
 class ObjetoRevisao():
 	def __init__(self):
-		self.objetoFlashcards = None
-		self.flashcards = []
+		self._flashcards = []
 		self.cursor = 0
 		self.ciclo = 0
 		self.max_ciclo = 0
 		self.modo = -1 # Sem modo
 
+	@property
+	def flashcards(self):
+		return self._flashcards
+	
 	def new(self):
-		self.objetoFlashcards = None
-		self.flashcards = []
+		self._flashcards = []
 		self.cursor = 0
 		self.ciclo = 0
 		self.max_ciclo = 0
 		self.modo = -1 # Sem modo
+
+	def adicionarFlashcards(self, lista):
+		for tupla in lista:
+			pergunta = tupla[0]
+			resposta = tupla[1]
+
+			self._flashcards.append([pergunta, resposta, 0])
 
 	def adicionarAoMaxCiclo(self, qtd):
 		if qtd < 1:
 			self.max_ciclo = 1
 		else:
 			self.max_ciclo = qtd
-
-	def copiarFlashcardsLista(self):
-		for pergunta, resposta in self.objetoFlashcards.flashcards.items():
-			self.flashcards.append([pergunta, resposta, 0])
-
-		shuffle(self.flashcards)
 
 	def proximoCursor(self):
 		modo_revisao_ordenar = 1
@@ -40,11 +44,10 @@ class ObjetoRevisao():
 			self.ciclo += 1
 
 			if self.modo == modo_revisao_ordenar:
-			    self.flashcards = sorted(self.flashcards, key=lambda flashcards: flashcards[indice_ordem_pergunta]) 
+			    self._flashcards = sorted(self.flashcards, key=lambda flashcards: flashcards[indice_ordem_pergunta]) 
 			elif self.modo == modo_revisao_retirar:
 				if len(self.flashcards) == 0:
 					self.ciclo = self.max_ciclo
-
 
 	def acabouRevisao(self):
 		if self.ciclo >= self.max_ciclo:

@@ -2,31 +2,36 @@ import sys
 import pickle 
 import os
 
-from datetime import timedelta, date
+from datetime import date
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QIcon
 
-from TelaInicial import TelaInicial
-from TelaVerDia import TelaVerDia
-from TelaCriarFlashcards import TelaCriarFlashcards
-from ObjetoFlashcards import ObjetoFlashcards
-from TelaRevisao import TelaRevisao
-from TelaOpcoesRevisao import TelaOpcoesRevisao
-from TelaDatas import TelaDatas
+from Telas.TelaInicial import TelaInicial
+from Telas.TelaVerDia import TelaVerDia
+from Telas.TelaCriarFlashcards import TelaCriarFlashcards
+from Telas.TelaRevisao import TelaRevisao
+from Telas.TelaOpcoesRevisao import TelaOpcoesRevisao
+from Telas.TelaDatas import TelaDatas
+
 from ObjetoRevisao import ObjetoRevisao
 
+import mysql.connector as mysql
+
+from Datas import hoje, hojeSplit, data
 
 class Main(QtWidgets.QStackedLayout):
     def __init__(self, parent=None):
         super(Main, self).__init__(parent)
-        self._objetoFlashcards = ObjetoFlashcards()
         self._objetoRevisao = ObjetoRevisao()
-        self.icon = QIcon("icone.png")
+        self._id_grupo = None
+        self._id_data = None
+
         self._createScreens()
         self._connectWidgets()
+        self._createDataBase()
 
     def _createScreens(self):
         self.tela_inicial = TelaInicial()
@@ -69,109 +74,107 @@ class Main(QtWidgets.QStackedLayout):
         self.tela_datas.setConnect("remover_botao", self.remover_TelaDatas) 
         self.tela_datas.setConnect("finalizar_botao", self.finalizar_TelaDatas) 
 
-    def abrirObjetoFlashcards(self, path, arquivo):
-        filehandler = open(path + "\\" + arquivo, 'rb')
+    def applySqlCommand(self, sql_command, retorno=None):
+        conexao = mysql.connect(host="localhost", db="flashcardsDB", user="root", passwd="")
 
-        flashcardObjeto = pickle.load(filehandler)
+        cursor = conexao.cursor()
 
-        filehandler.close()
+        cursor.execute(sql_command)
 
-        return flashcardObjeto
+        if retorno == "fetchall":
+            valor = cursor.fetchall()
+        elif retorno == "lastrowid":
+            valor = cursor.lastrowid 
+        else:
+            valor = None
 
-    def salvarObjetoFlashcards(self, path, objetoFlashcards):
-        filehandler = open(path + "\\" + objetoFlashcards.nome + ".obj", 'wb')
+        conexao.commit()
 
-        pickle.dump(objetoFlashcards, filehandler)
+        conexao.close()
 
-        filehandler.close()
+        return valor
+
+    def _createDataBase(self):
+        self.applySqlCommand("SET default_storage_engine=InnoDB;")
+
+        sql_command = """CREATE TABLE IF NOT EXISTS Grupos(
+                    id INTEGER AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                    titulo TEXT NOT NULL
+                );"""
+        self.applySqlCommand(sql_command)
+
+        sql_command = """CREATE TABLE IF NOT EXISTS Flashcards(
+                    id INTEGER AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                    pergunta TEXT NOT NULL, 
+                    resposta TEXT NOT NULL,
+                    id_grupo INTEGER NOT NULL,
+                    CONSTRAINT fk_grupo FOREIGN KEY (id_grupo) REFERENCES Grupo (id)
+                );"""
+        self.applySqlCommand(sql_command)
+
+        sql_command = """CREATE TABLE IF NOT EXISTS Datas(
+                    id INTEGER AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                    data INTEGER NOT NULL, 
+                    id_grupo INTEGER NOT NULL,
+                    CONSTRAINT fk_grupo FOREIGN KEY (id_grupo) REFERENCES Grupo (id)
+                );"""
+        self.applySqlCommand(sql_command)
 
     def abrir_TelaInicial(self):
+        self._id_grupo = None
+
         self.setCurrentIndex(0)
 
     def abrir_TelaVerDia(self):
         self.tela_ver_dia.clear("revisoes_do_dia_lista")
         self.tela_ver_dia.clear("revisoes_atrasadas_lista")
 
-        arquivos = os.listdir("flashcards")
-        pathFlashcards = "flashcards"
-        pathFinalizados = "C:\\Users\\lucas\\OneDrive\\Área de Trabalho\\flashcards\\finalizados"
-        today = date.today()
+        self._id_data = None
 
-        for arquivo in arquivos:
-            flashcardsObjeto = self.abrirObjetoFlashcards(pathFlashcards, arquivo)
+        lista_grupos_flashcards = self.applySqlCommand("SELECT g.titulo, d.data FROM Grupos AS g INNER JOIN Datas AS d on g.id=d.id_grupo", retorno="fetchall")
 
-            if flashcardsObjeto.isEmptyDatas():
-                self.salvarObjetoFlashcards(pathFinalizados, flashcardsObjeto)
-                os.remove(pathFlashcards + "\\" + arquivo)
-                continue
+        for tupla in lista_grupos_flashcards:
+            titulo = tupla[0]
+            data_flashcards = tupla[1]
 
-            if flashcardsObjeto.datas[0] == today:
-                self.tela_ver_dia.setText("revisoes_do_dia_lista", arquivo[:len(arquivo)-4])
-            elif flashcardsObjeto.datas[0] < today:
-            	self.tela_ver_dia.setText("revisoes_atrasadas_lista", arquivo[:len(arquivo)-4])
+            if hoje() == data_flashcards:
+                self.tela_ver_dia.setText("revisoes_do_dia_lista", titulo)
+            elif hoje() > data_flashcards:
+            	self.tela_ver_dia.setText("revisoes_atrasadas_lista", titulo)
 
         self.setCurrentIndex(1)
 
-    def abrir_TelaCriarFlashcards(self):
-        self.setCurrentIndex(2)
+    def revisarAtrasado_TelaVerDia(self):
+        tiulo_grupo = self.tela_ver_dia.getText("revisoes_atrasadas_lista")
 
-    def cancelar_TelaCriarFlashcards(self):
-        self._objetoFlashcards.new()
+        if tiulo_grupo:
+            lista_grupo = self.applySqlCommand("SELECT id FROM Grupos WHERE titulo='%s'" % (tiulo_grupo), "fetchall")
+            id_grupo = lista_grupo[0][0]
 
-        self.tela_criar_flashcards.clear("flashcards_box", "pergunta_texto", "resposta_texto", "titulo_line")
+            lista_data = self.applySqlCommand("SELECT id FROM Datas WHERE id_grupo=%s ORDER BY data" % (id_grupo), "fetchall")
+            self._id_data = lista_data[0][0]
 
-        self.abrir_TelaInicial()
+            lista_grupo = self.applySqlCommand("SELECT pergunta, resposta FROM Flashcards WHERE id_grupo=%s" % (id_grupo), "fetchall")
 
-    def adicionar_TelaCriarFlashcards(self):
-        pergunta = self.tela_criar_flashcards.getText("pergunta_texto")
-        resposta = self.tela_criar_flashcards.getText("resposta_texto")
+            self._objetoRevisao.adicionarFlashcards(lista_grupo)
 
-        if pergunta != "" and resposta != "":
-            if self.tela_criar_flashcards.flashcards_box.count() < 40:
-                if pergunta[-1] != "?":
-                    pergunta += "?"
+            self.abrir_TelaOpcoesRevisao()
 
-                if pergunta in self._objetoFlashcards.flashcards:
-                    QMessageBox.information(None, "FLASHCARDS", "Pergunta ja criada")
-                else:
-                    self._objetoFlashcards.adicionarFlashcard(pergunta, resposta)
-                    self.tela_criar_flashcards.flashcards_box.addItem(pergunta)
-            else:
-                QMessageBox.information(None, "FLASHCARDS", "Limite de 40 flashcards atingidos")
-        else:
-            QMessageBox.information(None, "FLASHCARDS", "Campo(s) vazio(s)")
+    def revisarDoDia_TelaVerDia(self):
+        tiulo_grupo = self.tela_ver_dia.getText("revisoes_do_dia_lista")
 
-    def deletar_TelaCriarFlashcards(self):
-        pergunta = self.tela_criar_flashcards.getText("flashcards_box")
-        indice = self.tela_criar_flashcards.flashcards_box.currentIndex()
+        if tiulo_grupo:
+            lista_grupo = self.applySqlCommand("SELECT id FROM Grupos WHERE titulo='%s'" % (tiulo_grupo), "fetchall")
+            id_grupo = lista_grupo[0][0]
 
-        if pergunta:
-            self._objetoFlashcards.deletarFlashcard(pergunta)
-            self.tela_criar_flashcards.flashcards_box.removeItem(indice)
+            lista_data = self.applySqlCommand("SELECT id FROM Datas WHERE id_grupo=%s ORDER BY data" % (id_grupo), "fetchall")
+            self._id_data = lista_data[0][0]
 
-    def salvar_TelaCriarFlashcards(self):
-        titulo = self.tela_criar_flashcards.getText("titulo_line")
+            lista_grupo = self.applySqlCommand("SELECT pergunta, resposta FROM Flashcards WHERE id_grupo='%s'" % (id_grupo), "fetchall")
 
-        if titulo != "":
-            if self._objetoFlashcards.isEmptyFlascards():
-                QMessageBox.information(None, "FLASHCARDS", "Nenhum flashcard foi criado")
-            else:
-                arquivos_flashcards = os.listdir("flashcards")
+            self._objetoRevisao.adicionarFlashcards(lista_grupo)
 
-                if (titulo + ".obj") in arquivos_flashcards:
-                    QMessageBox.information(None, "FLASHCARDS", "Um arquivo com esse titulo ja existe")
-                else:
-                    question_finalizar = QMessageBox.question(None, "Salvar", "Deseja realmente salvar os flashcards?", QMessageBox.Yes, QMessageBox.No)
-
-                    if question_finalizar == QMessageBox.Yes:
-                        self._objetoFlashcards.nome = titulo
-
-                        self.tela_criar_flashcards.clear("all")
-
-                        self.abrir_telaDatas()
-                        
-        else:
-            QMessageBox.information(None, "FLASHCARDS", "Dê um titulo")
+            self.abrir_TelaOpcoesRevisao()
 
     def abrir_TelaOpcoesRevisao(self):
         self.tela_opcoes_revisao.clear("all")
@@ -183,7 +186,6 @@ class Main(QtWidgets.QStackedLayout):
 
         self.tela_revisao.clear("all")
 
-        self._objetoRevisao.copiarFlashcardsLista()
         self._objetoRevisao.adicionarAoMaxCiclo(self.tela_opcoes_revisao.qtd_ciclos_spinbox.value())
 
         if self.tela_opcoes_revisao.ordenar_flashcards_radiobutton.isChecked():
@@ -204,24 +206,6 @@ class Main(QtWidgets.QStackedLayout):
 
         self.abrir_TelaVerDia()
 
-    def revisarAtrasado_TelaVerDia(self):
-        pathFlashcards = "flashcards"
-
-        nome_objetoFlashcards = self.tela_ver_dia.getText("revisoes_atrasadas_lista")
-
-        if nome_objetoFlashcards:
-            self._objetoRevisao.objetoFlashcards = self.abrirObjetoFlashcards(pathFlashcards, nome_objetoFlashcards + ".obj")
-            self.abrir_TelaOpcoesRevisao()
-
-    def revisarDoDia_TelaVerDia(self):
-        pathFlashcards = "flashcards"
-
-        nome_objetoFlashcards = self.tela_ver_dia.getText("revisoes_do_dia_lista")
-
-        if nome_objetoFlashcards:
-            self._objetoRevisao.objetoFlashcards = self.abrirObjetoFlashcards(pathFlashcards, nome_objetoFlashcards + ".obj")
-            self.abrir_TelaOpcoesRevisao()
-
     def anteriorOuProximo_TelaRevisao(self):
         indice_pergunta = 0
         indice_resposta = 1
@@ -233,36 +217,102 @@ class Main(QtWidgets.QStackedLayout):
             self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
             self.tela_revisao.setText("texto", self._objetoRevisao.flashcards[self._objetoRevisao.cursor][indice_pergunta])
 
-    def acerteiResposta(self):
-        self._objetoRevisao.acerteiResposta()
-
-        self.proximo_ObjetoRevisao()
-
-    def erreiResposta(self, ):
-        self._objetoRevisao.erreiResposta()
-
-        self.proximo_ObjetoRevisao()
-
     def proximo_ObjetoRevisao(self): 
-        pathFlashcards = "flashcards"
         indice_pergunta = 0
         indice_primeira_data = 0
 
         if self._objetoRevisao.acabouRevisao():
-            self._objetoRevisao.objetoFlashcards.deletarData(indice_primeira_data)
-            self.salvarObjetoFlashcards(pathFlashcards, self._objetoRevisao.objetoFlashcards)
+            self.applySqlCommand("DELETE FROM Datas WHERE id=%s" % (self._id_data))
             self.voltar_TelaRevisao()
         else:
             self.tela_revisao.setText("pergunta_ou_resposta", "pergunta")
             self.tela_revisao.setText("texto", self._objetoRevisao.flashcards[self._objetoRevisao.cursor][indice_pergunta])
             self.tela_revisao.setText("ciclo_line", str(self._objetoRevisao.ciclo+1))
 
+    def acerteiResposta(self):
+        self._objetoRevisao.acerteiResposta()
+
+        self.proximo_ObjetoRevisao()
+
+    def erreiResposta(self):
+        self._objetoRevisao.erreiResposta()
+
+        self.proximo_ObjetoRevisao()
+
+    def abrir_TelaCriarFlashcards(self):
+        self._id_grupo = self.applySqlCommand("INSERT INTO Grupos (titulo) VALUES ('default')", "lastrowid")
+
+        self.setCurrentIndex(2)
+
+    def abrir_TelaCriarFlashcards(self):
+        self._id_grupo = self.applySqlCommand("INSERT INTO Grupos (titulo) VALUES ('default')", "lastrowid")
+
+        self.setCurrentIndex(2)
+
+    def cancelar_TelaCriarFlashcards(self):
+        self.applySqlCommand("DELETE FROM Grupos WHERE id=%s" % (self._id_grupo))
+        self.applySqlCommand("DELETE FROM Flashcards WHERE id_grupo=%s" % (self._id_grupo))
+        self.applySqlCommand("DELETE FROM Datas WHERE id_grupo=%s" % (self._id_grupo))
+
+        self.tela_criar_flashcards.clear("flashcards_box", "pergunta_texto", "resposta_texto", "titulo_line")
+
+        self.abrir_TelaInicial()
+
+    def adicionar_TelaCriarFlashcards(self):
+        pergunta = self.tela_criar_flashcards.getText("pergunta_texto")
+        resposta = self.tela_criar_flashcards.getText("resposta_texto")
+
+        if pergunta != "" and resposta != "":
+            if self.tela_criar_flashcards.flashcards_box.count() < 40:
+                if pergunta[-1] != "?":
+                    pergunta += "?"
+
+                self.applySqlCommand("INSERT INTO Flashcards (pergunta, resposta, id_grupo) VALUES ('%s', '%s', %s)" % (pergunta, resposta, self._id_grupo))
+                self.tela_criar_flashcards.flashcards_box.addItem(pergunta)
+            else:
+                QMessageBox.information(None, "FLASHCARDS", "Limite de 40 flashcards atingidos")
+        else:
+            QMessageBox.information(None, "FLASHCARDS", "Campo(s) vazio(s)")
+
+    def deletar_TelaCriarFlashcards(self):
+        pergunta = self.tela_criar_flashcards.getText("flashcards_box")
+        indice = self.tela_criar_flashcards.flashcards_box.currentIndex()
+
+        if pergunta:
+            self.applySqlCommand("DELETE FROM Flashcards WHERE pergunta='%s' AND id_grupo=%s " % (pergunta, self._id_grupo))
+            self.tela_criar_flashcards.flashcards_box.removeItem(indice)
+
+    def salvar_TelaCriarFlashcards(self):
+        titulo = self.tela_criar_flashcards.getText("titulo_line")
+
+        if titulo != "":
+            lista_flashcards = self.applySqlCommand("SELECT * FROM Flashcards WHERE id_grupo=%s" % (self._id_grupo), "fetchall")
+
+            if lista_flashcards:
+                question_finalizar = QMessageBox.question(None, "Salvar", "Deseja realmente salvar os flashcards?", QMessageBox.Yes, QMessageBox.No)
+
+                if question_finalizar == QMessageBox.Yes:
+                    lista_titulo = self.applySqlCommand("SELECT 1 FROM Grupos WHERE substr(titulo, 1, %s)='%s'" % (len(titulo), titulo), "fetchall")
+
+                    if lista_titulo:
+                        titulo += "({})".format(len(lista_titulo))
+
+                    self.applySqlCommand("UPDATE Grupos SET titulo='%s' WHERE id=%s" % (titulo, self._id_grupo))
+
+                    self.tela_criar_flashcards.clear("all")
+
+                    self.abrir_telaDatas()
+            else:
+                QMessageBox.information(None, "FLASHCARDS", "Nenhum flashcard foi criado")       
+        else:
+            QMessageBox.information(None, "FLASHCARDS", "Dê um titulo")
+
     def abrir_telaDatas(self):
         self.tela_datas.clear("all")
 
-        hoje = date.today()
+        ano, mes, dia = hojeSplit()
 
-        self.tela_datas.calendario_widget.setMinimumDate(QDate(hoje.year, hoje.month, hoje.day))
+        self.tela_datas.calendario_widget.setMinimumDate(QDate(ano, mes, dia))
 
         self.setCurrentIndex(5)
 
@@ -273,11 +323,13 @@ class Main(QtWidgets.QStackedLayout):
         mes = data_selecionada.month()
         dia = data_selecionada.day()
 
-        data = date(ano, mes, dia)
-        data_str = str(dia) + "/" + str(mes) + "/" + str(ano)         
+        data_inteiro = data(ano, mes, dia)
+        data_str = str(dia) + "/" + str(mes) + "/" + str(ano)
+
+        datas_lista = self.applySqlCommand("SELECT 1 FROM Datas WHERE data=%s AND id_grupo=%s" % (data_inteiro, self._id_grupo), "fetchall")
         
-        if data not in self._objetoFlashcards.datas:
-            self._objetoFlashcards.adicionarData(data)
+        if not datas_lista:
+            self.applySqlCommand("INSERT INTO Datas (data, id_grupo) VALUES (%s, %s)" % (data_inteiro, self._id_grupo))
 
             self.tela_datas.setText("datas_listwidget", data_str)
 
@@ -285,21 +337,25 @@ class Main(QtWidgets.QStackedLayout):
         indice_data_selected = self.tela_datas.datas_listwidget.currentRow()
 
         if indice_data_selected > -1:
-            self.tela_datas.datas_listwidget.takeItem(indice_data_selected)
+            data_str = self.tela_datas.datas_listwidget.takeItem(indice_data_selected).text()
 
-            self._objetoFlashcards.deletarData(indice_data_selected)
+            data_lista = data_str.split("/")
 
+            dia = int(data_lista[0])
+            mes = int(data_lista[1])
+            ano = int(data_lista[2])
+
+            data_inteiro = data(ano, mes, dia)
+
+            self.applySqlCommand("DELETE FROM Datas WHERE data=%s AND id_grupo=%s" % (data_inteiro, self._id_grupo))
+            
     def finalizar_TelaDatas(self):
-        pathFlashcards = "flashcards"
-        
-        if self._objetoFlashcards.isEmptyDatas():
-            QMessageBox.information(None, "FLASHCARDS", "Nenhuma data foi definida")
-        else:
-            self.salvarObjetoFlashcards(pathFlashcards, self._objetoFlashcards)
+        lista_datas = self.applySqlCommand("SELECT 1 FROM Datas WHERE id_grupo=%s" % (self._id_grupo), "fetchall")
 
-            self._objetoFlashcards.new()
-
+        if lista_datas:
             self.abrir_TelaInicial()
+        else:
+            QMessageBox.information(None, "FLASHCARDS", "Nenhuma data foi definida")
 
 
 if __name__ == '__main__':
