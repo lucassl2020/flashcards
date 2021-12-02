@@ -21,14 +21,14 @@ class TelaOpcoesRevisao(QWidget, SetInterface):
  
     def _createWidgets(self):
         self.qtd_ciclos_label = QLabel("Quantos ciclos (repetições dos flashcards)?", self)
-        self.qtd_ciclos_label.setGeometry(QRect(95, 40, 210, 20))
+        self.qtd_ciclos_label.setGeometry(QRect(0, 30, 400, 30))
         self.qtd_ciclos_label.setAlignment(Qt.AlignCenter)
 
         self.qtd_ciclos_spinbox = QSpinBox(self)
         self.qtd_ciclos_spinbox.setGeometry(QRect(145, 60, 110, 20))
 
         self.modo_do_ciclo_groupbox = QGroupBox("Modo do ciclo", self)
-        self.modo_do_ciclo_groupbox.setGeometry(QRect(60, 120, 280, 80))
+        self.modo_do_ciclo_groupbox.setGeometry(QRect(10, 120, 380, 80))
 
         self.ordenar_flashcards_radiobutton = QRadioButton("ordenar flashcards com base nos acertos e erros")
         self.ordenar_flashcards_radiobutton.setChecked(True)
@@ -54,8 +54,15 @@ class TelaOpcoesRevisao(QWidget, SetInterface):
     def _setStyle(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        style_button(button=self.iniciar_botao, shadow=self.iniciar_shadow, cor="azul", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        self.qtd_ciclos_label.setStyleSheet("font: 12pt;")
+        self.ordenar_flashcards_radiobutton.setStyleSheet("font: 12pt;")
+        self.retirar_flashcard_radiobutton.setStyleSheet("font: 12pt;")
+        self.modo_do_ciclo_groupbox.setStyleSheet("font: 12pt;")
+        self.qtd_ciclos_spinbox.setStyleSheet("font: 12pt;")
+
+
+        style_button(button=self.iniciar_botao, shadow=self.iniciar_shadow, cor="azul", tam_fonte="12", tam_border_radius="5")
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="12", tam_border_radius="5")
 
     def _createSetTexts(self):
         pass

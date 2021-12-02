@@ -15,12 +15,14 @@ from Telas.TelaCriarFlashcards import TelaCriarFlashcards
 from Telas.TelaRevisao import TelaRevisao
 from Telas.TelaOpcoesRevisao import TelaOpcoesRevisao
 from Telas.TelaDatas import TelaDatas
+from Telas.TelaFlashcards import TelaFlashcards
 
 from ObjetoRevisao import ObjetoRevisao
 
-import mysql.connector as mysql
+import sqlite3
 
 from Datas import hoje, hojeSplit, data
+
 
 class Main(QtWidgets.QStackedLayout):
     def __init__(self, parent=None):
@@ -40,6 +42,7 @@ class Main(QtWidgets.QStackedLayout):
         self.tela_revisao = TelaRevisao()
         self.tela_opcoes_revisao = TelaOpcoesRevisao()
         self.tela_datas = TelaDatas()
+        self.tela_flashcards = TelaFlashcards()
 
         self.addWidget(self.tela_inicial)
         self.addWidget(self.tela_ver_dia)
@@ -47,10 +50,12 @@ class Main(QtWidgets.QStackedLayout):
         self.addWidget(self.tela_revisao)
         self.addWidget(self.tela_opcoes_revisao)
         self.addWidget(self.tela_datas)
+        self.addWidget(self.tela_flashcards)
 
     def _connectWidgets(self):
         self.tela_inicial.setConnect("ver_dia_botao", self.abrir_TelaVerDia)
         self.tela_inicial.setConnect("criar_flashcards_botao", self.abrir_TelaCriarFlashcards)
+        self.tela_inicial.setConnect("flashcards_botao", self.abrir_TelaFlashcards)
 
         self.tela_ver_dia.setConnect("voltar_botao", self.abrir_TelaInicial)
         self.tela_ver_dia.setConnect("revisar_atrasado_botao", self.revisarAtrasado_TelaVerDia)
@@ -74,8 +79,10 @@ class Main(QtWidgets.QStackedLayout):
         self.tela_datas.setConnect("remover_botao", self.remover_TelaDatas) 
         self.tela_datas.setConnect("finalizar_botao", self.finalizar_TelaDatas) 
 
+        self.tela_flashcards.setConnect("voltar_botao", self.abrir_TelaInicial) 
+
     def applySqlCommand(self, sql_command, retorno=None):
-        conexao = mysql.connect(host="localhost", db="flashcardsDB", user="root", passwd="")
+        conexao = sqlite3.connect("flashcard.db")
 
         cursor = conexao.cursor()
 
@@ -95,16 +102,16 @@ class Main(QtWidgets.QStackedLayout):
         return valor
 
     def _createDataBase(self):
-        self.applySqlCommand("SET default_storage_engine=InnoDB;")
+        #self.applySqlCommand("SET default_storage_engine=InnoDB;") MYSQL
 
         sql_command = """CREATE TABLE IF NOT EXISTS Grupos(
-                    id INTEGER AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     titulo TEXT NOT NULL
                 );"""
         self.applySqlCommand(sql_command)
 
         sql_command = """CREATE TABLE IF NOT EXISTS Flashcards(
-                    id INTEGER AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
                     pergunta TEXT NOT NULL, 
                     resposta TEXT NOT NULL,
                     id_grupo INTEGER NOT NULL,
@@ -113,7 +120,7 @@ class Main(QtWidgets.QStackedLayout):
         self.applySqlCommand(sql_command)
 
         sql_command = """CREATE TABLE IF NOT EXISTS Datas(
-                    id INTEGER AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     data INTEGER NOT NULL, 
                     id_grupo INTEGER NOT NULL,
                     CONSTRAINT fk_grupo FOREIGN KEY (id_grupo) REFERENCES Grupo (id)
@@ -131,15 +138,17 @@ class Main(QtWidgets.QStackedLayout):
 
         self._id_data = None
 
-        lista_grupos_flashcards = self.applySqlCommand("SELECT g.titulo, d.data FROM Grupos AS g INNER JOIN Datas AS d on g.id=d.id_grupo", retorno="fetchall")
+        hoje_ = hoje()
+
+        lista_grupos_flashcards = self.applySqlCommand("SELECT g.titulo, d.data FROM Grupos AS g INNER JOIN Datas AS d on g.id=d.id_grupo WHERE d.data <= %s" % (hoje_), retorno="fetchall")
 
         for tupla in lista_grupos_flashcards:
             titulo = tupla[0]
             data_flashcards = tupla[1]
 
-            if hoje() == data_flashcards:
+            if hoje_ == data_flashcards:
                 self.tela_ver_dia.setText("revisoes_do_dia_lista", titulo)
-            elif hoje() > data_flashcards:
+            else:
             	self.tela_ver_dia.setText("revisoes_atrasadas_lista", titulo)
 
         self.setCurrentIndex(1)
@@ -244,11 +253,6 @@ class Main(QtWidgets.QStackedLayout):
 
         self.setCurrentIndex(2)
 
-    def abrir_TelaCriarFlashcards(self):
-        self._id_grupo = self.applySqlCommand("INSERT INTO Grupos (titulo) VALUES ('default')", "lastrowid")
-
-        self.setCurrentIndex(2)
-
     def cancelar_TelaCriarFlashcards(self):
         self.applySqlCommand("DELETE FROM Grupos WHERE id=%s" % (self._id_grupo))
         self.applySqlCommand("DELETE FROM Flashcards WHERE id_grupo=%s" % (self._id_grupo))
@@ -289,7 +293,7 @@ class Main(QtWidgets.QStackedLayout):
             lista_flashcards = self.applySqlCommand("SELECT * FROM Flashcards WHERE id_grupo=%s" % (self._id_grupo), "fetchall")
 
             if lista_flashcards:
-                question_finalizar = QMessageBox.question(None, "Salvar", "Deseja realmente salvar os flashcards?", QMessageBox.Yes, QMessageBox.No)
+                question_finalizar = QMessageBox.question(None, "Salvar", "Deseja realmente salvar o(s) flashcard(s)?", QMessageBox.Yes, QMessageBox.No)
 
                 if question_finalizar == QMessageBox.Yes:
                     lista_titulo = self.applySqlCommand("SELECT 1 FROM Grupos WHERE substr(titulo, 1, %s)='%s'" % (len(titulo), titulo), "fetchall")
@@ -356,6 +360,18 @@ class Main(QtWidgets.QStackedLayout):
             self.abrir_TelaInicial()
         else:
             QMessageBox.information(None, "FLASHCARDS", "Nenhuma data foi definida")
+
+    def abrir_TelaFlashcards(self):
+        self.tela_flashcards.clear("all")
+        
+        lista_grupos_flashcards = self.applySqlCommand("SELECT titulo FROM Grupos", retorno="fetchall")
+        
+        for tupla in lista_grupos_flashcards:
+            titulo = tupla[0]
+
+            self.tela_flashcards.setText("flashcards_lista", titulo)
+
+        self.setCurrentIndex(6)
 
 
 if __name__ == '__main__':

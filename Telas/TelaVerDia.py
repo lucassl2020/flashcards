@@ -24,10 +24,10 @@ class TelaVerDia(QWidget, SetInterface):
         self.voltar_botao.setGeometry(QRect(20, 20, 90, 40))
 
         self.revisoes_atrasadas_label = QLabel("revisões atrasadas", self)
-        self.revisoes_atrasadas_label.setGeometry(QRect(100, 170, 100, 30))
+        self.revisoes_atrasadas_label.setGeometry(QRect(100, 170, 130, 30))
 
         self.revisoes_do_dia_label = QLabel("revisões do dia", self)
-        self.revisoes_do_dia_label.setGeometry(QRect(405, 170, 100, 30))
+        self.revisoes_do_dia_label.setGeometry(QRect(405, 170, 110, 30))
 
         self.revisoes_atrasadas_lista = QListWidget(self)
         self.revisoes_atrasadas_lista.setGeometry(QRect(95, 200, 300, 240))
@@ -48,9 +48,12 @@ class TelaVerDia(QWidget, SetInterface):
     def _set_style(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="10")
-        style_button(button=self.revisar_atrasado_botao, shadow=self.revisar_atrasado_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.revisar_atual_botao, shadow=self.revisar_atual_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        self.revisoes_atrasadas_label.setStyleSheet("font: 12pt;")
+        self.revisoes_do_dia_label.setStyleSheet("font: 12pt;")
+
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="12", tam_border_radius="10")
+        style_button(button=self.revisar_atrasado_botao, shadow=self.revisar_atrasado_shadow, cor="cinza", tam_fonte="12", tam_border_radius="5")
+        style_button(button=self.revisar_atual_botao, shadow=self.revisar_atual_shadow, cor="cinza", tam_fonte="12", tam_border_radius="5")
 
     def _createSetTexts(self):
         self._setTexts["revisoes_atrasadas_lista"] = self.revisoes_atrasadas_lista.addItem

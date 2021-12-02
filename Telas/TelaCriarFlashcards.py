@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QTextEdit, QLabel, QComboBox, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QTextEdit, QLabel, QComboBox, QLineEdit, QMessageBox
 from PyQt5.QtCore import Qt, QRect
 import sys
 from Suporte import style_button, SetInterface
@@ -27,7 +27,7 @@ class TelaCriarFlashcards(QWidget, SetInterface):
         self.titulo_line.setGeometry(QRect(190, 20, 440, 25))
 
         self.pergunta_label = QLabel("pergunta", self)
-        self.pergunta_label.setGeometry(QRect(102, 90, 60, 25))
+        self.pergunta_label.setGeometry(QRect(102, 90, 65, 25))
 
         self.resposta_label = QLabel("resposta", self)
         self.resposta_label.setGeometry(QRect(407, 90, 60, 25))
@@ -66,12 +66,15 @@ class TelaCriarFlashcards(QWidget, SetInterface):
     def _set_style(self):
         self.setStyleSheet("background-color: rgb(255, 255, 255);")
 
-        self.titulo_label.setStyleSheet("font: 11pt;")
+        self.titulo_label.setStyleSheet("font: 12pt;")
+        self.pergunta_label.setStyleSheet("font: 12pt;")
+        self.resposta_label.setStyleSheet("font: 12pt;")
+        self.flashcards_label.setStyleSheet("font: 10pt;")
 
-        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="azul", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.deletar_botao, shadow=self.deletar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.salvar_botao, shadow=self.salvar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.cancelar_botao, shadow=self.cancelar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="5")
+        style_button(button=self.adicionar_botao, shadow=self.adicionar_shadow, cor="azul", tam_fonte="12", tam_border_radius="5")
+        style_button(button=self.deletar_botao, shadow=self.deletar_shadow, cor="vermelho", tam_fonte="12", tam_border_radius="5")
+        style_button(button=self.salvar_botao, shadow=self.salvar_shadow, cor="verde", tam_fonte="12", tam_border_radius="5")
+        style_button(button=self.cancelar_botao, shadow=self.cancelar_shadow, cor="vermelho", tam_fonte="12", tam_border_radius="5")
 
     def _createSetTexts(self):
         pass
@@ -93,6 +96,11 @@ class TelaCriarFlashcards(QWidget, SetInterface):
         self._clears["pergunta_texto"] = self.pergunta_texto.clear
         self._clears["resposta_texto"] = self.resposta_texto.clear
         self._clears["titulo_line"] = self.titulo_line.clear
+    
+    def closeEvent(self, e):
+        e.ignore()
+
+        QMessageBox.information(None, "FECHAR", "Por segurança, não é possivel fechar está aba")  
 
 
 if __name__ == '__main__':

@@ -64,11 +64,11 @@ class TelaRevisao(QWidget, SetInterface):
 
         self.texto.setStyleSheet("font: 12pt;")
 
-        style_button(button=self.anterior_botao, shadow=self.anterior_shadow, cor="cinza", tam_fonte="10", tam_border_radius="20")
-        style_button(button=self.proximo_botao, shadow=self.proximo_shadow, cor="cinza", tam_fonte="10", tam_border_radius="20")
-        style_button(button=self.acertei_botao, shadow=self.acertei_shadow, cor="verde", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.errei_botao, shadow=self.errei_shadow, cor="vermelho", tam_fonte="10", tam_border_radius="5")
-        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="10", tam_border_radius="10")
+        style_button(button=self.anterior_botao, shadow=self.anterior_shadow, cor="cinza", tam_fonte="12", tam_border_radius="20")
+        style_button(button=self.proximo_botao, shadow=self.proximo_shadow, cor="cinza", tam_fonte="12", tam_border_radius="20")
+        style_button(button=self.acertei_botao, shadow=self.acertei_shadow, cor="verde", tam_fonte="12", tam_border_radius="5")
+        style_button(button=self.errei_botao, shadow=self.errei_shadow, cor="vermelho", tam_fonte="12", tam_border_radius="5")
+        style_button(button=self.voltar_botao, shadow=self.voltar_shadow, cor="cinza", tam_fonte="12", tam_border_radius="10")
 
     def _createSetTexts(self):
         self._setTexts["pergunta_ou_resposta"] = self.pergunta_ou_resposta.setText
