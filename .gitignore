@@ -1,4 +1,4 @@
 *.exe
 *.ui
-testes.py
 __pycache__
+.db
