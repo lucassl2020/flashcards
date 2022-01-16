@@ -1,6 +1,8 @@
 from model.Observer import Observer
 from model.Datas import data
 from model.ApplySqlCommand import abrir_banco_de_dados, fechar_banco_de_dados, apply_sql_command
+from shutil import copyfile
+import os
 
 
 class CriarESalvarFlashcards(Observer):
@@ -13,9 +15,23 @@ class CriarESalvarFlashcards(Observer):
 
     def update(self, event):
         if event["codigo"] == 1:
+            self._stack_telas.screens[2].clear()
             self._flashcard = {}
-            self._datas = []
 
+            arquivo = open('backup.txt', 'r')
+            lista = arquivo.readlines()
+            arquivo.close()
+
+            for i in range(0, len(lista), 2):
+                pergunta = lista[i]
+                resposta = lista[i+1]
+
+                self._flashcard[pergunta] = resposta
+                self._stack_telas.screens[2].flashcards_box.addItem(pergunta)
+
+            
+        if event["codigo"] == 8:
+            self._datas = []
 
         if event["codigo"] == 6:
             pergunta = self._stack_telas.screens[2].pergunta_texto.toPlainText()
@@ -23,6 +39,11 @@ class CriarESalvarFlashcards(Observer):
 
             if pergunta != "" and resposta != "":
                 if pergunta not in self._flashcard:
+                    arquivo = open('backup.txt', 'a')
+                    arquivo.write(pergunta.replace("\n", " ") + "\n")
+                    arquivo.write(resposta.replace("\n", " ") + "\n")
+                    arquivo.close()
+
                     self._flashcard[pergunta] = resposta
                     self._stack_telas.screens[2].flashcards_box.addItem(pergunta)
                 else:
@@ -81,6 +102,10 @@ class CriarESalvarFlashcards(Observer):
                     apply_sql_command(cursor, "INSERT INTO Flashcards (pergunta, resposta, id_grupo) VALUES ('%s', '%s', %s)" % (pergunta, resposta, id_grupo))
 
                 fechar_banco_de_dados(conexao)
+
+                copyfile("C:\\Users\\lucas\\OneDrive\\Área de Trabalho\\flashcards refatorado2\\model\\banco de dados.db", "C:\\Users\\lucas\\OneDrive\\Área de Trabalho\\flashcards refatorado2\\backup\\banco de dados.db")
+
+                os.remove("backup.txt")
 
                 self._stack_telas.open_screen(0)
             else:

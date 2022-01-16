@@ -12,6 +12,7 @@ from view.TelaFlashcards import TelaFlashcards
 from view.TelaCriarRotina import TelaCriarRotina
 from view.TelaRotina import TelaRotina
 from view.TelaHistorico import TelaHistorico
+from view.TelaEditarHistorico import TelaEditarHistorico
 from view.StackTelas import StackTelas
 
 from model.CreateDatabase import create_database
@@ -30,6 +31,8 @@ from model.CriarESalvarRotina import CriarESalvarRotina
 from model.AbrirTelaRotina import AbrirTelaRotina
 from model.SalvarEstadoDaAtividade import SalvarEstadoDaAtividade
 from model.AbrirTelaHistorico import AbrirTelaHistorico
+from model.AbrirTelaEditarHistorico import AbrirTelaEditarHistorico
+from model.VoltarTelaCriarFlashcards import VoltarTelaCriarFlashcards
 
 
 def create_screens():
@@ -55,6 +58,8 @@ def create_screens():
 
 	telas.append(TelaHistorico()) # 9
 
+	telas.append(TelaEditarHistorico()) # 10
+
 	return telas
 
 
@@ -63,13 +68,16 @@ def create_observers(stack_telas):
 	criar_e_salvar_flashcards = CriarESalvarFlashcards(stack_telas, QMessageBox)
 	abrir_tela_revisoes = AbrirTelaRevisoes(stack_telas)
 	controle_da_revisao_flashcards = ControleDaRevisaoFlashcards(stack_telas, abrir_tela_revisoes)
+	abrir_tela_historico = AbrirTelaHistorico(stack_telas)
+	abrir_tela_editar_historico = AbrirTelaEditarHistorico(stack_telas)
+	salvar_estado_da_atividade = SalvarEstadoDaAtividade(stack_telas, abrir_tela_editar_historico)
 
 	stack_telas.screens[0].subject.subscribe(abrir_tela_revisoes)
 	stack_telas.screens[0].subject.subscribe(AbrirTelaCriarFlashcards(stack_telas))
 	stack_telas.screens[0].subject.subscribe(AbrirTelaFlashcards(stack_telas))
 	stack_telas.screens[0].subject.subscribe(AbrirTelaCriarRotina(stack_telas))
 	stack_telas.screens[0].subject.subscribe(AbrirTelaRotina(stack_telas))
-	stack_telas.screens[0].subject.subscribe(AbrirTelaHistorico(stack_telas))
+	stack_telas.screens[0].subject.subscribe(abrir_tela_historico)
 
 	stack_telas.screens[1].subject.subscribe(voltar_para_tela_inicial)
 	stack_telas.screens[2].subject.subscribe(voltar_para_tela_inicial)
@@ -99,9 +107,15 @@ def create_observers(stack_telas):
 	stack_telas.screens[7].subject.subscribe(CriarESalvarRotina(stack_telas))
 
 	stack_telas.screens[8].subject.subscribe(voltar_para_tela_inicial)
-	stack_telas.screens[8].subject.subscribe(SalvarEstadoDaAtividade(stack_telas))
+	stack_telas.screens[8].subject.subscribe(salvar_estado_da_atividade)
 
 	stack_telas.screens[9].subject.subscribe(voltar_para_tela_inicial)
+
+	stack_telas.screens[9].subject.subscribe(abrir_tela_editar_historico)
+	stack_telas.screens[10].subject.subscribe(abrir_tela_historico)
+	stack_telas.screens[10].subject.subscribe(salvar_estado_da_atividade)
+
+	stack_telas.screens[5].subject.subscribe(VoltarTelaCriarFlashcards(stack_telas))
 
 
 if __name__ == '__main__':

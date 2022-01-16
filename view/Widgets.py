@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QPushButton, QLabel, QLineEdit, QTextEdit, QCalendarWidget, QComboBox, QGroupBox, QListWidget, QRadioButton, QSpinBox, QTableWidget
+from PyQt5.QtWidgets import QPushButton, QLabel, QLineEdit, QTextEdit, QCalendarWidget, QComboBox, QGroupBox, QListWidget, QRadioButton, QSpinBox, QTableWidget, QProgressBar
 from PyQt5.QtCore import QRect
 
 
@@ -82,3 +82,10 @@ def table(tela, x, y, largura, altura):
     tableWidget.setGeometry(QRect(x, y, largura, altura))
 
     return tableWidget
+
+
+def progressBar(tela, x, y, largura, altura):
+    progressBarWidget = QProgressBar(tela)
+    progressBarWidget.setGeometry(QRect(x, y, largura, altura))
+
+    return progressBarWidget

@@ -8,7 +8,7 @@ class AbrirTelaHistorico(Observer):
 
 
     def update(self, event):
-        if event["codigo"] == 33:
+        if event["codigo"] in (33, 35):
             self._stack_telas.screens[9].clear()
             self._stack_telas.open_screen(9)
 

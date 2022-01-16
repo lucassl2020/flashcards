@@ -36,8 +36,10 @@ class TelaHistorico(QWidget):
         #Table will fit the screen horizontally
         self.tabela_historico.horizontalHeader().setStretchLastSection(True)
         self.tabela_historico.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.tabela_historico.horizontalHeader().setDefaultSectionSize(280)
+        self.tabela_historico.horizontalHeader().setDefaultSectionSize(275)
         self.tabela_historico.setColumnCount(2)  
+
+        self.editar_botao = button(self, "Editar", 110, 510, 580, 50)
 
 
     def _set_style(self):
@@ -54,10 +56,12 @@ class TelaHistorico(QWidget):
                                             }''')
 
         style_button(button=self.voltar_botao, cor="cinza_escuro", tam_fonte="12", border_radius=(10, 10, 10, 10), rgb_da_letra="(210, 210, 210)")
+        style_button(button=self.editar_botao, cor="azul", tam_fonte="12", border_radius=(0, 0, 5, 5), border_color="(123, 166, 205)")
 
 
     def _setConnects(self):
         self.voltar_botao.clicked.connect(self.botaoVoltar)
+        self.editar_botao.clicked.connect(self.botaoEditar)
 
 
     def clear(self):
@@ -67,6 +71,12 @@ class TelaHistorico(QWidget):
     def botaoVoltar(self):
         event = {"codigo": 32, "descricao": "Botão VOLTAR da tela HISTÓRICO"}
         self.subject.notify(event)
+
+
+    def botaoEditar(self):
+        if self.tabela_historico.currentItem():
+            event = {"codigo": 34, "descricao": "Botão EDITAR da tela HISTÓRICO"}
+            self.subject.notify(event)
 
 
     def adicionarItemTabela(self, linha, valores):

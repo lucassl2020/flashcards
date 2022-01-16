@@ -1,4 +1,5 @@
 from model.Observer import Observer
+import os
 
 
 class AbrirTelaCriarFlashcards(Observer):
@@ -8,5 +9,8 @@ class AbrirTelaCriarFlashcards(Observer):
 
     def update(self, event):
         if event["codigo"] == 1:
-            self._stack_telas.screens[2].clear()
             self._stack_telas.open_screen(2)
+
+            if not os.path.exists("backup.txt"):
+                arquivo = open('backup.txt', 'w')
+                arquivo.close()       

@@ -38,3 +38,17 @@ def hojeFormatado():
 	today = date.today() 
 
 	return f"{today.year}-{today.month}-{today.day}"
+
+
+def diaDaSemanaData(data):
+	dias = ["segunda", "terça", "quarta", "quinta", "sexta", "sabado", "domingo"]
+
+	data = data.split("/")
+
+	return dias[date(year=int(data[2]), month=int(data[1]), day=int(data[0])).weekday()]
+
+
+def dataFormatada(data):
+	data = data.split('/')
+
+	return f"{data[2]}-{data[1]}-{data[0]}"

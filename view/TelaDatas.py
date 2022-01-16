@@ -29,16 +29,9 @@ class TelaDatas(QWidget):
 
 
     def _createWidgets(self):
-        self.adicione_datas = label(self, "Adicione datas para revisão", 0, 20, 800, 20) 
-        self.adicione_datas.setAlignment(Qt.AlignCenter)
-
-        self.criar_datas_padrao_botao = button(self, "Criar data padrão", 280, 80, 100, 30)
-
-        self.carregar_datas_padrao_botao = button(self, "Carregar data padrão", 400, 80, 120, 30)
+        self.voltar_botao = button(self, "Voltar", 20, 20, 90, 40)
 
         self.calendario_widget = calendar(self, 90, 200, 320, 191)
-        ano, mes, dia = hojeSplit()
-        self.calendario_widget.setMinimumDate(QDate(ano, mes, dia))
 
         self.datas_listwidget = listWidget(self, 450, 200, 260, 192)
 
@@ -52,8 +45,6 @@ class TelaDatas(QWidget):
     def _setStyle(self):
         self.setStyleSheet("background-color: rgb(54, 54, 54);")
 
-        self.adicione_datas.setStyleSheet("color: rgb(210, 210, 210); font: 14pt;")
-
         self.calendario_widget.setStyleSheet("color: rgb(210, 210, 210);")
         self.datas_listwidget.setStyleSheet('''color: rgb(210, 210, 210); 
                                             border: 1px solid; 
@@ -61,14 +52,14 @@ class TelaDatas(QWidget):
                                             border-top-right-radius: 4px; 
                                             border-color: rgb(84, 84, 84);''')
         
+        style_button(button=self.voltar_botao, cor="cinza_escuro", tam_fonte="12", border_radius=(10, 10, 10, 10), rgb_da_letra="(210, 210, 210)")
         style_button(button=self.adicionar_botao, cor="verde", tam_fonte="12", border_radius=(0, 0, 5, 5), border_color="(123, 205, 126)")
         style_button(button=self.remover_botao, cor="vermelho", tam_fonte="12", border_radius=(0, 0, 5, 5), border_color="(205, 123, 123)")
         style_button(button=self.finalizar_botao, cor="azul", tam_fonte="12", border_radius=(5, 5, 5, 5), border_color="(123, 166, 205)")
-        style_button(button=self.criar_datas_padrao_botao, cor="cinza_escuro", tam_fonte="8", border_radius=(5, 5, 5, 5), rgb_da_letra="(210, 210, 210)")
-        style_button(button=self.carregar_datas_padrao_botao, cor="cinza_escuro", tam_fonte="8", border_radius=(5, 5, 5, 5), rgb_da_letra="(210, 210, 210)")
 
 
     def _setConnects(self):
+        self.voltar_botao.clicked.connect(self.botaoVoltar)
         self.adicionar_botao.clicked.connect(self.botaoAdicionar)
         self.remover_botao.clicked.connect(self.botaoRemover)
         self.finalizar_botao.clicked.connect(self.botaoFinalizar)
@@ -76,6 +67,14 @@ class TelaDatas(QWidget):
 
     def clear(self):
         self.datas_listwidget.clear()
+        ano, mes, dia = hojeSplit()
+        self.calendario_widget.setMinimumDate(QDate(ano, mes, dia))
+        self.calendario_widget.setSelectedDate(QDate(ano, mes, dia))
+
+
+    def botaoVoltar(self):
+        event = {"codigo": 37, "descricao": "Botão VOLTAR da tela EDITAR DATAS"}
+        self.subject.notify(event)
 
 
     def botaoAdicionar(self):
